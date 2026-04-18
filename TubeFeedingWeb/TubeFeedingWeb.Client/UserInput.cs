@@ -2,17 +2,17 @@
 {
     public class UserInput
     {
-        public double BodyWeight { get; set; }
+        public double BodyWeight { get; set; } // (kg)
         public bool Species { get; set; } // true = cat, false = dog
         public int Days { get; set; }
         public string? PatientName { get; set; } = string.Empty;
         public string? DietName { get; set; } = string.Empty;
         public double KcalPerG { get; set; }
-        public double DietNetWeight { get; set; }
+        public double DietNetWeight { get; set; } // (g)
         public double DietWaterPercentage { get; set; }
 
-        private double totalVolumePerDay;
-        private double totalVolumePerMeal;
+        private double totalVolumePerDay; // (ml)
+        private double totalVolumePerMeal; // (ml)
         private int mealsPerDay;
 
         public void CalculateFeedingPlan()

@@ -3,31 +3,98 @@
 
 <PageTitle>Calculator</PageTitle>
 
-<h1>Calculator</h1>
+<div class="main">
 
-<input @bind="newBodyWeight" />
-<input @bind="newSpecies" />
-<input @bind="newDays" />
-<input @bind="newPatientName" />
-<input @bind="newDietName" />
-<input @bind="newKcalPerMl" />
-<input @bind="newDietNetWeight" />
-<input @bind="newDietWaterWeight" />
+    <h1>Calculator</h1>
 
-<button @onclick="Calculate">Calculate</button>
+    @if (calculated == false)
+    {
+        <ul>
+            <li><input @bind="newPatientName" /></li>
+            <li><input @bind="newSpecies" /></li>
+            <li><input @bind="newBodyWeight" /></li>
+            <li><input @bind="newDietName" /></li>
+            <li><input @bind="newKcalPerG" /></li>
+            <li><input @bind="newDietNetWeight" /></li>
+            <li><input @bind="newDietWaterPercentage" /></li>
+            <li><input @bind="newDays" /></li>
+            <li><button @onclick="Calculate">Calculate</button></li>
+        </ul>
+    }
+
+    @if (calculated == true)
+    {
+        <button @onclick="Reset">Reset</button>
+            
+        <table class="calculations">
+            <tr>
+                <td>Patient name:</td>
+                <td>@userInput.PatientName</td>
+            </tr>
+            <tr>
+                <td>Species:</td>
+                <td>@userInput.Species</td>
+            </tr>
+            <tr>
+                <td>Bodyweight:</td>
+                <td>@userInput.BodyWeight kg</td>
+            </tr>
+            <tr>
+                <td>Name of the diet to be fed:</td>
+                <td>@userInput.DietName</td>
+            </tr>
+            <tr>
+                <td>The diet's kcal/g:</td>
+                <td>@userInput.KcalPerG</td>
+            </tr>
+            <tr>
+                <td>Net weight of diet per container:</td>
+                <td>@userInput.DietNetWeight g</td>
+            </tr>
+            <tr>
+                <td>Percentage water content of diet:</td>
+                <td>@userInput.DietWaterPercentage %</td>
+            </tr>
+            <tr>
+                <td>Number of days to increase food intake over:</td>
+                <td>@userInput.Days</td>
+            </tr>
+        </table>
+    }
+
+</div>
 
 @code {
+    bool calculated = false;
     int newBodyWeight = 0;
     bool newSpecies = true;
     int newDays = 3;
     string newPatientName = "";
     string newDietName = "";
-    double newKcalPerMl = 0;
+    double newKcalPerG = 0;
     double newDietNetWeight = 0;
-    double newDietWaterWeight = 0;
+    double newDietWaterPercentage = 0;
+    UserInput userInput = new();
 
     private void Calculate()
     {
-        
+        userInput = new()
+        { 
+            BodyWeight = newBodyWeight,
+            Species = newSpecies,
+            Days = newDays,
+            PatientName = newPatientName,
+            DietName = newDietName,
+            KcalPerG = newKcalPerG,
+            DietNetWeight = newDietNetWeight,
+            DietWaterPercentage = newDietWaterPercentage
+        };
+
+        calculated = true;
+    }
+
+    private void Reset()
+    {
+        calculated = false;
     }
 }
