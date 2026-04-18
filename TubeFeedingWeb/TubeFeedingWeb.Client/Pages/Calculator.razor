@@ -1,0 +1,33 @@
+﻿@page "/calculator"
+@rendermode InteractiveServer
+
+<PageTitle>Calculator</PageTitle>
+
+<h1>Calculator</h1>
+
+<input @bind="newBodyWeight" />
+<input @bind="newSpecies" />
+<input @bind="newDays" />
+<input @bind="newPatientName" />
+<input @bind="newDietName" />
+<input @bind="newKcalPerMl" />
+<input @bind="newDietNetWeight" />
+<input @bind="newDietWaterWeight" />
+
+<button @onclick="Calculate">Calculate</button>
+
+@code {
+    int newBodyWeight = 0;
+    bool newSpecies = true;
+    int newDays = 3;
+    string newPatientName = "";
+    string newDietName = "";
+    double newKcalPerMl = 0;
+    double newDietNetWeight = 0;
+    double newDietWaterWeight = 0;
+
+    private void Calculate()
+    {
+        
+    }
+}
