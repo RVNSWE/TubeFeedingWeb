@@ -1,5 +1,5 @@
 ﻿@page "/calculator"
-@rendermode InteractiveServer
+@rendermode InteractiveAuto
 
 <PageTitle>Calculator</PageTitle>
 
@@ -11,7 +11,7 @@
     {
         <ul>
             <li><input @bind="newPatientName" /></li>
-            <li><input @bind="newSpecies" /></li>
+            <li><input type="radio" @bind="newSpecies" /> <label for="cat">Cat</label> <label for="dog">Dog</label></li>
             <li><input @bind="newBodyWeight" /></li>
             <li><input @bind="newDietName" /></li>
             <li><input @bind="newKcalPerG" /></li>
