@@ -5,10 +5,9 @@
 
 <div class="main">
 
-    <h1>Calculator</h1>
-
     @if (calculated == false)
     {
+        <h1>Calculator</h1>
         <ul>
             <li><input @bind="newPatientName" /></li>
             <li><input type="radio" @bind="newSpecies" /> <label for="cat">Cat</label> <label for="dog">Dog</label></li>
@@ -26,52 +25,52 @@
     {
         <button @onclick="Reset">Reset</button>
 
-        @for (int i = 0; i < data.Days; i++)
-        {
+        <h1>Tube Feeding Instructions for @data.PatientName</h1>
 
+        <p>Diet: <strong>@data.DietName</strong></p>
+
+        @foreach (Volumes meal in calculatedVolumes)
+        {
+            <div id="day">
+            <p><strong><u>Day: @meal.Day</u></strong></p>
+            <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
+            <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+            <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
+            <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @ContainerText(meal)</strong></p>
+            <p>Example feeding schedule: 
+                @foreach (string time in meal.FormattedFeedingTimes)
+                {
+                    <span>@time</span>
+                }
+            </p>
+            </div>
         }
-            
-        <table class="calculations">
-            <tr>
-                <td>Patient name:</td>
-                <td>@data.PatientName</td>
-            </tr>
-            <tr>
-                <td>Species:</td>
-                <td>@data.Species</td>
-            </tr>
-            <tr>
-                <td>Bodyweight:</td>
-                <td>@data.BodyWeight kg</td>
-            </tr>
-            <tr>
-                <td>Name of the diet to be fed:</td>
-                <td>@data.DietName</td>
-            </tr>
-            <tr>
-                <td>The diet's kcal/g:</td>
-                <td>@data.KcalPerG</td>
-            </tr>
-            <tr>
-                <td>Net weight of diet per container:</td>
-                <td>@data.DietNetWeight g</td>
-            </tr>
-            <tr>
-                <td>Percentage water content of diet:</td>
-                <td>@data.DietWaterPercentage %</td>
-            </tr>
-            <tr>
-                <td>Number of days to increase food intake over:</td>
-                <td>@data.Days</td>
-            </tr>
-        </table>
+
+        <p>
+            <strong>It is vital you follow the above feeding plan in order to prevent refeeding syndrome.</strong> Refeeding
+            syndrome is a life-threatening condition caused by reintroducing food too rapidly after prolonged
+            periods of not eating, which is why it must be done gradually over the first three days.
+        </p>
+        <p>
+            You are free to adjust the times at which you feed te to suit you, but please spread them out as
+            much as possible and allow a minimum of one hour between feeds to avoid overloading the
+            stomach and causing regurgitation.
+        </p>
+        <p>
+            Unless advised otherwise by your clinic, fresh water should remain available at all times and you
+            should leave the calculated volume of food in te's normal bowl between feeds to allow the
+            opportunity to eat unassisted. If it has all been eaten by the time of their next scheduled feed, offer
+            a fresh bowl of food instead of tube feeding. Otherwise, draw up any remaining uneaten food into
+            a syringe (or the same volume of fresh food if it's looking dry or stale). This is the volume of food
+            you will need to administer to te this session.
+        </p>
     }
 
 </div>
 
 @code {
     PatientDietData data = new();
-    List<Volumes> CalculatedVolumes = [];
+    List<Volumes> calculatedVolumes = [];
     bool calculated = false;
     int newBodyWeight;
     bool newSpecies = true;
@@ -98,9 +97,9 @@
 
         @for (int day = 1; day < data.Days + 1; day++)
         {
-            Volumes volumes = new(data);
-            volumes.Calculate(day);
-            CalculatedVolumes.Add(volumes);
+            Volumes volumes = new(data, day);
+            volumes.Calculate();
+            calculatedVolumes.Add(volumes);
         }
 
         calculated = true;
@@ -110,5 +109,17 @@
     {
         calculated = false;
         data = new();
+    }
+
+    private string ContainerText(Volumes meal)
+    {
+        string text = meal.ContainersPerDay switch
+        {
+            > 1 => " containers",
+            1 => " container",
+            _ => " of a container",
+        };
+
+        return text;
     }
 }
