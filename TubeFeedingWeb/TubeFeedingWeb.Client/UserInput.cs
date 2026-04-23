@@ -3,11 +3,12 @@
     /*
      * TO DO: Make editable
      */
-    public class UserInput
+    public class PatientDietData
     {
         public double BodyWeight { get; set; } // (kg)
         public bool Species { get; set; } // true = cat, false = dog
         public int Days { get; set; }
+        public int FractionRER { get; set; }
         public string? PatientName { get; set; } = string.Empty;
         public string? DietName { get; set; } = string.Empty;
         public double KcalPerG { get; set; }
@@ -15,8 +16,10 @@
         public double DietWaterPercentage { get; set; }
         public double FlushVolume { get; set; }
 
-        public UserInput()
+        public PatientDietData()
         {
+            FractionRER = 1 / Days; // Starting RER fraction
+
             CalculateFlushVolume();
         }
 

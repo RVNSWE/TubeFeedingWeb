@@ -26,7 +26,7 @@
     {
         <button @onclick="Reset">Reset</button>
 
-        @for (int i = 0; i < userInput.Days; i++)
+        @for (int i = 0; i < data.Days; i++)
         {
 
         }
@@ -34,35 +34,35 @@
         <table class="calculations">
             <tr>
                 <td>Patient name:</td>
-                <td>@userInput.PatientName</td>
+                <td>@data.PatientName</td>
             </tr>
             <tr>
                 <td>Species:</td>
-                <td>@userInput.Species</td>
+                <td>@data.Species</td>
             </tr>
             <tr>
                 <td>Bodyweight:</td>
-                <td>@userInput.BodyWeight kg</td>
+                <td>@data.BodyWeight kg</td>
             </tr>
             <tr>
                 <td>Name of the diet to be fed:</td>
-                <td>@userInput.DietName</td>
+                <td>@data.DietName</td>
             </tr>
             <tr>
                 <td>The diet's kcal/g:</td>
-                <td>@userInput.KcalPerG</td>
+                <td>@data.KcalPerG</td>
             </tr>
             <tr>
                 <td>Net weight of diet per container:</td>
-                <td>@userInput.DietNetWeight g</td>
+                <td>@data.DietNetWeight g</td>
             </tr>
             <tr>
                 <td>Percentage water content of diet:</td>
-                <td>@userInput.DietWaterPercentage %</td>
+                <td>@data.DietWaterPercentage %</td>
             </tr>
             <tr>
                 <td>Number of days to increase food intake over:</td>
-                <td>@userInput.Days</td>
+                <td>@data.Days</td>
             </tr>
         </table>
     }
@@ -70,21 +70,21 @@
 </div>
 
 @code {
-
+    PatientDietData data = new();
+    List<Volumes> CalculatedVolumes = [];
     bool calculated = false;
-    int newBodyWeight = 0;
+    int newBodyWeight;
     bool newSpecies = true;
-    int newDays = 3;
+    int newDays;
     string newPatientName = "";
     string newDietName = "";
-    double newKcalPerG = 0;
-    double newDietNetWeight = 0;
-    double newDietWaterPercentage = 0;
-    UserInput userInput = new();
+    double newKcalPerG;
+    double newDietNetWeight;
+    double newDietWaterPercentage;
 
     private void Calculate()
     {
-        userInput = new()
+        data = new()
         { 
             BodyWeight = newBodyWeight,
             Species = newSpecies,
@@ -96,12 +96,19 @@
             DietWaterPercentage = newDietWaterPercentage
         };
 
+        @for (int day = 1; day < data.Days + 1; day++)
+        {
+            Volumes volumes = new(data);
+            volumes.Calculate(day);
+            CalculatedVolumes.Add(volumes);
+        }
+
         calculated = true;
     }
 
     private void Reset()
     {
         calculated = false;
-        userInput = new();
+        data = new();
     }
 }

@@ -3,7 +3,7 @@
     /*
      * Calculate food and water volumes for a specific day.
      */
-    public class CalculateFeed
+    public class Volumes
     {
         public double ContainersPerDay { get; set; }
         public int MealsPerDay { get; set; }
@@ -13,24 +13,21 @@
         public double WaterPerMeal { get; set; }
 
         private double totalVolumePerDay; // (ml)
-        private readonly float dayModifier;
-        private readonly UserInput input;
+        private readonly PatientDietData data;
 
-        public CalculateFeed(UserInput userInput, int day)
+        public Volumes(PatientDietData data)
         {
-            input = userInput;
-            dayModifier = (1 / input.Days) * day; // Get starting RER fraction and multiply it by the current day number
-
-            CalculateFeedingPlan();
+            this.data = data;
         }
 
-        private void CalculateFeedingPlan()
+        public void Calculate(int day)
         {
-            double rER = (70 * Math.Pow(input.BodyWeight, 0.75)) * dayModifier; // Resting energy requirement (kcal) for the current day
-            double foodPerDay = rER / input.KcalPerG; // Total food per day (g)
-            ContainersPerDay = foodPerDay / input.DietNetWeight; // Estimated containers of food used up per day
-            double dietWaterVolume = foodPerDay * (input.DietWaterPercentage / 100); // Volume of water contained in food (ml)
-            MaxVolumePerMeal = input.BodyWeight * 20; // Max volume to be administered per meal (ml)
+            float dayMultiplier = data.FractionRER * day; // Fraction of RER to feed on this day
+            double rER = 70 * Math.Pow(data.BodyWeight, 0.75) * dayMultiplier; // Resting energy requirement (kcal)
+            double foodPerDay = rER / data.KcalPerG; // Total food per day (g)
+            ContainersPerDay = foodPerDay / data.DietNetWeight; // Estimated containers of food used up per day
+            double dietWaterVolume = foodPerDay * (data.DietWaterPercentage / 100); // Volume of water contained in food (ml)
+            MaxVolumePerMeal = data.BodyWeight * 20; // Max volume to be administered per meal (ml)
             double waterPerDay = CalculateWaterPerDay(dietWaterVolume); // Additional water needed per day (ml)
             totalVolumePerDay = foodPerDay + waterPerDay; // Estimated total volume administered per day (ml)
             MealsPerDay = (int)Math.Round(totalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Number of meals per day
@@ -48,14 +45,14 @@
             }
 
             FoodPerMeal = foodPerDay / MealsPerDay; // Food to administer per meal (g)
-            WaterPerMeal = (waterPerDay / MealsPerDay) - (input.FlushVolume * 2); // Extra water needed per meal (ml)
+            WaterPerMeal = (waterPerDay / MealsPerDay) - (data.FlushVolume * 2); // Extra water needed per meal (ml)
 
             if (WaterPerMeal < 0)
             {
                 WaterPerMeal = 0; // Water per meal cannot be negative
             }
 
-            switch (input.BodyWeight) // Round volumes per meal to more appropriate SF
+            switch (data.BodyWeight) // Round volumes per meal to more appropriate SF
             {
                 case < 10:
                     FoodPerMeal = Math.Round(FoodPerMeal, 2, MidpointRounding.AwayFromZero);
@@ -80,13 +77,13 @@
         {
             double waterPerDay;
 
-            if (input.Species == true)
+            if (data.Species == true)
             {
-                waterPerDay = 80 * Math.Pow(input.BodyWeight, 0.75);
+                waterPerDay = 80 * Math.Pow(data.BodyWeight, 0.75);
             }
             else
             {
-                waterPerDay = 132 * Math.Pow(input.BodyWeight, 0.75);
+                waterPerDay = 132 * Math.Pow(data.BodyWeight, 0.75);
             }
 
             if (dietWaterVolume > 0)
