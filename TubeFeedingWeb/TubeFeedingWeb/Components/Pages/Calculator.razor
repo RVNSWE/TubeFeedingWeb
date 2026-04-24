@@ -7,7 +7,7 @@
 
     @if (calculated == false)
     {
-        <h1>Calculate Feeding Volumes</h1>
+        <h3>Calculate Feeding Volumes</h3>
         <ul>
             <li><input @bind="newPatientName" /></li>
             <li><input type="radio" @bind="newSpecies" /> <label for="cat">Cat</label> <label for="dog">Dog</label></li>
@@ -25,7 +25,7 @@
     {
         <button @onclick="Reset">Reset</button>
 
-        <h1>Tube Feeding Instructions for @data.PatientName</h1>
+        <h3>Tube Feeding Instructions for @data.PatientName</h3>
 
         <p>Diet: <strong>@data.DietName</strong></p>
 
@@ -64,7 +64,7 @@
             a syringe (or the same volume of fresh food if it's looking dry or stale). This is the volume of food
             you will need to administer to your pet this session.
         </p>
-        <h2>Preparing the food</h2>
+        <h3>Preparing the food</h3>
         <p>
             Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has not
             been drinking anything, you will also need to mix in additional water as listed in the feeding plan
@@ -77,7 +77,7 @@
             Place the filled syringes into a jug of <strong>warm</strong> (not hot!) water until they reach body temperature. <strong>DO
             NOT MICROWAVE</strong>, as this can create pockets of hot liquid that may scald your pet.
         </p>
-        <h2>Administering the food</h2>
+        <h3>Administering the food</h3>
         <p>
         <ol>
             <li>
