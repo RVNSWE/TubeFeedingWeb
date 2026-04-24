@@ -1,8 +1,5 @@
 ﻿namespace TubeFeedingWeb.Client
 {
-    /*
-     * TO DO: Make editable
-     */
     public class PatientDietData
     {
         public double BodyWeight { get; set; } // (kg)

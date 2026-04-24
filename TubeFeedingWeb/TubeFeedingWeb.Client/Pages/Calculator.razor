@@ -7,7 +7,7 @@
 
     @if (calculated == false)
     {
-        <h1>Calculator</h1>
+        <h1>Calculate Feeding Volumes</h1>
         <ul>
             <li><input @bind="newPatientName" /></li>
             <li><input type="radio" @bind="newSpecies" /> <label for="cat">Cat</label> <label for="dog">Dog</label></li>
@@ -40,7 +40,7 @@
             <p>Example feeding schedule: 
                 @foreach (string time in meal.FormattedFeedingTimes)
                 {
-                    <span>@time</span>
+                    <span id="time">@time</span>
                 }
             </p>
             </div>
@@ -52,17 +52,61 @@
             periods of not eating, which is why it must be done gradually over the first three days.
         </p>
         <p>
-            You are free to adjust the times at which you feed te to suit you, but please spread them out as
-            much as possible and allow a minimum of one hour between feeds to avoid overloading the
-            stomach and causing regurgitation.
+            You are free to adjust the times at which you feed your pet to suit you, but please spread them out as
+            much as possible and allow a minimum of one hour between feeds to avoid overloading the stomach and
+            causing regurgitation.
         </p>
         <p>
             Unless advised otherwise by your clinic, fresh water should remain available at all times and you
-            should leave the calculated volume of food in te's normal bowl between feeds to allow the
+            should leave the calculated volume of food in your pet's normal bowl between feeds to allow the
             opportunity to eat unassisted. If it has all been eaten by the time of their next scheduled feed, offer
             a fresh bowl of food instead of tube feeding. Otherwise, draw up any remaining uneaten food into
             a syringe (or the same volume of fresh food if it's looking dry or stale). This is the volume of food
-            you will need to administer to te this session.
+            you will need to administer to your pet this session.
+        </p>
+        <h2>Preparing the food</h2>
+        <p>
+            Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has not
+            been drinking anything, you will also need to mix in additional water as listed in the feeding plan
+            before drawing it up. If your pet has been offered food and eaten some but not all of it, draw the rest of it
+            up into a syringe (or the same amount of fresh food if it's looking dry or stale). If your pet has not eaten
+            anything at all since the last feed, you will need to draw up the full volume of food listed for this
+            meal.
+        </p>
+        <p>
+            Place the filled syringes into a jug of <strong>warm</strong> (not hot!) water until they reach body temperature. <strong>DO
+            NOT MICROWAVE</strong>, as this can create pockets of hot liquid that may scald your pet.
+        </p>
+        <h2>Administering the food</h2>
+        <p>
+        <ol>
+            <li>
+                <strong><u>1.</u></strong> Pinch the feeding tube to prevent food from leaking out when you remove the cap. Attach an
+                empty syringe to the feeding tube port, stop pinching, and gently draw back on the plunger. You
+                should feel some resistance, and the plunger should return to its starting position when you let go
+                of it. <strong>If this does not happen, it may mean the tube has become displaced. STOP immediately, and
+                contact the clinic for advice.</strong>
+            </li>
+            <li>
+                <strong><u>2.</u></strong> <strong>Slowly</strong> flush the feeding tube with water before administering any food.
+                <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP immediately
+                and contact the clinic for advice.</strong>
+            </li>
+            <li>
+                <strong><u>3.</u></strong> Slowly administer the prepared volume of food through the tube. You may notice your pet
+                swallowing as you do this. This is normal, as the food is being administered into the oesophagus
+                rather than directly into the stomach. If they regurgitate, slow down the rate of administration. <strong>If
+                regurgitation continues, stop feeding and contact the clinic for advice.</strong>
+            </li>
+            <li>
+                <strong><u>4.</u></strong> Slowly flush the tube with water again to clear it of any residual food.
+            </li>
+            <li>
+                <strong><u>5.</u></strong> Place the cap back on the feeding tube and wipe away any food from the outside of the tube
+                with a clean, damp cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
+                the used syringes with water to clean them ready for the next feed.
+            </li>
+            </ol>
         </p>
     }
 
