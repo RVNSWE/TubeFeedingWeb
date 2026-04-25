@@ -8,6 +8,56 @@
     @if (calculated == false)
     {
         <h3>Calculate Feeding Volumes</h3>
+
+        <EditForm Model="@data">
+            <ul>
+                <li>
+                    <label>Patient name:
+                        <InputText @bind-Value=newPatientName></InputText>
+                    </label>
+                </li>
+                <li>
+                    <label>Species:
+                        <InputRadioGroup Name="species" @bind-Value=newSpecies>
+                            <label>Cat<InputRadio Name="species" Value="@species[0]"></InputRadio></label>
+                            <label>Dog<InputRadio Name="species" Value="@species[1]"></InputRadio></label>
+                        </InputRadioGroup>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        Body weight:
+                        <InputNumber @bind-Value="newBodyWeight" min="0" max="200"></InputNumber>
+                    </label>
+                </li>
+                <li>
+                    <label>Name of diet to be fed:
+                        <InputText @bind-Value=newDietName></InputText>
+                    </label>
+                </li>
+                <li>
+                    <label>Kcal per gram:
+                        <InputNumber @bind-Value=newKcalPerG min="0" max="10"></InputNumber>
+                    </label>
+                </li>
+                <li>
+                    <label>Net weight per container (g):
+                        <InputNumber @bind-Value=newDietNetWeight min="0" max ="1000"></InputNumber>
+                    </label>
+                </li>
+                <li>
+                    <label>Moisture content (%):
+                        <InputNumber @bind-Value=newDietWaterPercentage min="0" max="100"></InputNumber>
+                    </label>
+                </li>
+                <li>
+                    <label>Number of days to re-feed over (enter "1" if starting at full RER):
+                        <InputNumber @bind-Value=newDays min="1" max="10"></InputNumber>
+                    </label>
+                </li>
+            </ul>
+        </EditForm>
+
         <ul>
             <li><input @bind="newPatientName" /></li>
             <li><input type="radio" @bind="newSpecies" /> <label for="cat">Cat</label> <label for="dog">Dog</label></li>
@@ -115,6 +165,7 @@
 @code {
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
+    List<string> species = ["cat", "dog"];
     bool calculated = false;
     int newBodyWeight;
     bool newSpecies = true;
