@@ -9,66 +9,61 @@
     {
         <h3>Calculate Feeding Volumes</h3>
 
-        <EditForm Model="@data">
-            <ul>
-                <li>
-                    <label>Patient name:
-                        <InputText @bind-Value=newPatientName></InputText>
-                    </label>
-                </li>
-                <li>
-                    <label>Species:
-                        <InputRadioGroup Name="species" @bind-Value=newSpecies>
-                            <label>Cat<InputRadio Name="species" Value="@species[0]"></InputRadio></label>
-                            <label>Dog<InputRadio Name="species" Value="@species[1]"></InputRadio></label>
-                        </InputRadioGroup>
-                    </label>
-                </li>
-                <li>
-                    <label>
-                        Body weight:
-                        <InputNumber @bind-Value="newBodyWeight" min="0" max="200"></InputNumber>
-                    </label>
-                </li>
-                <li>
-                    <label>Name of diet to be fed:
-                        <InputText @bind-Value=newDietName></InputText>
-                    </label>
-                </li>
-                <li>
-                    <label>Kcal per gram:
-                        <InputNumber @bind-Value=newKcalPerG min="0" max="10"></InputNumber>
-                    </label>
-                </li>
-                <li>
-                    <label>Net weight per container (g):
-                        <InputNumber @bind-Value=newDietNetWeight min="0" max ="1000"></InputNumber>
-                    </label>
-                </li>
-                <li>
-                    <label>Moisture content (%):
-                        <InputNumber @bind-Value=newDietWaterPercentage min="0" max="100"></InputNumber>
-                    </label>
-                </li>
-                <li>
-                    <label>Number of days to re-feed over (enter "1" if starting at full RER):
-                        <InputNumber @bind-Value=newDays min="1" max="10"></InputNumber>
-                    </label>
-                </li>
-            </ul>
-        </EditForm>
+        <div>
+            <form>
+                <ul>
+                    <li><label>Patient name:<input @bind=data.PatientName></input></label></li>
+                    <li>
+                        <label>Species:
+                                @foreach (string species in speciesSelection)
+                                {
+                                    <label>@species<radio Name="species" value="@species"></radio></label>
+                                }
+                        </label>
+                    </li>
+                    <li><label>Body weight:<input @bind="data.BodyWeight" min="0" max="200"></input></label>kg</li>
+                    <li><label>Name of diet to be fed:<input @bind=data.DietName></input></label></li>
+                    <li><label>Kcal per gram:<input @bind=data.KcalPerG min="0" max="10"></input></label></li>
+                    <li><label>Net weight per container (g or ml):<input @bind=data.DietNetWeight min="0" max="1000"></input></label></li>
+                    <li><label>Moisture content (%):<input @bind=data.DietWaterPercentage min="0" max="100"></input></label></li>
+                    <li><label>Number of days to re-feed over (enter "1" if starting at full RER):<input @bind=data.Days min="1" max="10"></input></label></li>
+                    <li><input type="submit" value="Calculate" disabled=@calculating /></li>
+                </ul>
+            </form>
+        </div>
 
-        <ul>
-            <li><input @bind="newPatientName" /></li>
-            <li><input type="radio" @bind="newSpecies" /> <label for="cat">Cat</label> <label for="dog">Dog</label></li>
-            <li><input @bind="newBodyWeight" /></li>
-            <li><input @bind="newDietName" /></li>
-            <li><input @bind="newKcalPerG" /></li>
-            <li><input @bind="newDietNetWeight" /></li>
-            <li><input @bind="newDietWaterPercentage" /></li>
-            <li><input @bind="newDays" /></li>
-            <li><button @onclick="Calculate">Calculate</button></li>
-        </ul>
+        @* <div>
+            <EditForm Model="data" OnSubmit="ProcessData">
+                <ul>
+                    <li><label>Patient name:<InputText @bind-Value=data.PatientName></InputText></label></li>
+                    <li><ValidationMessage For="@(() => data.PatientName)" /></li>
+                    <li>
+                        <label>Species:
+                            <InputRadioGroup Name="species" @bind-Value=data.Species>
+                                @foreach (string species in speciesSelection)
+                                {
+                                    <label>@species<InputRadio Name="species" Value="@species"></InputRadio></label>
+                                }
+                            </InputRadioGroup>
+                        </label>
+                    </li>
+                    <li><label>Body weight:<InputNumber @bind-Value="data.BodyWeight" min="0" max="200"></InputNumber></label>kg</li>
+                    <li><ValidationMessage For="@(() => data.BodyWeight)" /></li>
+                    <li><label>Name of diet to be fed:<InputText @bind-Value=data.DietName></InputText></label></li>
+                    <li><ValidationMessage For="@(() => data.DietName)" /></li>
+                    <li><label>Kcal per gram:<InputNumber @bind-Value=data.KcalPerG min="0" max="10"></InputNumber></label></li>
+                    <li><ValidationMessage For="@(() => data.KcalPerG)" /></li>
+                    <li><label>Net weight per container (g or ml):<InputNumber @bind-Value=data.DietNetWeight min="0" max="1000"></InputNumber></label></li>
+                    <li><ValidationMessage For="@(() => data.DietNetWeight)" /></li>
+                    <li><label>Moisture content (%):<InputNumber @bind-Value=data.DietWaterPercentage min="0" max="100"></InputNumber></label>%</li>
+                    <li><ValidationMessage For="@(() => data.DietWaterPercentage)" /></li>
+                    <li><label>Number of days to re-feed over (enter "1" if starting at full RER):<InputNumber @bind-Value=data.Days min="1" max="10"></InputNumber></label></li>
+                    <li><ValidationMessage For="@(() => data.Days)" /></li>
+                    <li><input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating /></li>
+                </ul>
+                <DataAnnotationsValidator />
+            </EditForm>
+        </div> *@
     }
 
     @if (calculated == true)
@@ -165,38 +160,41 @@
 @code {
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
-    List<string> species = ["cat", "dog"];
-    bool calculated = false;
-    int newBodyWeight;
-    bool newSpecies = true;
-    int newDays;
-    string newPatientName = "";
-    string newDietName = "";
-    double newKcalPerG;
-    double newDietNetWeight;
-    double newDietWaterPercentage;
+    List<string> speciesSelection = ["cat", "dog"];
+    int fractionRER;
+    double flushVolume;
 
-    private void Calculate()
+    bool calculating = false;
+    bool calculated = false;
+
+    private async Task ProcessData(EditContext editContext)
     {
-        data = new()
-        { 
-            BodyWeight = newBodyWeight,
-            Species = newSpecies,
-            Days = newDays,
-            PatientName = newPatientName,
-            DietName = newDietName,
-            KcalPerG = newKcalPerG,
-            DietNetWeight = newDietNetWeight,
-            DietWaterPercentage = newDietWaterPercentage
+        calculating = true;
+
+        CalculateFractionRER();
+        CalculateFlushVolume();
+
+        flushVolume = data.BodyWeight switch
+        {
+            < 1.5 => 1,
+            < 2 => 1.5,
+            < 3 => 2,
+            < 4 => 2.5,
+            < 4.5 => 3,
+            < 5 => 4,
+            < 8 => 5,
+            < 20 => 6,
+            _ => 10,
         };
 
         @for (int day = 1; day < data.Days + 1; day++)
         {
             Volumes volumes = new(data, day);
-            volumes.Calculate();
+            volumes.Calculate(fractionRER, flushVolume);
             calculatedVolumes.Add(volumes);
         }
 
+        calculating = false;
         calculated = true;
     }
 
@@ -216,5 +214,29 @@
         };
 
         return text;
+    }
+    private void CalculateFractionRER()
+    {
+        fractionRER = 1 / data.Days; // Calculate the initial fraction of RER to meet
+    }
+
+    /*
+     * Calculate the volume of water to flush the feeding tube with before and after each feed.
+     * If bodyweight is greater than value, check next value. Return first value lower than bodyweight.
+     */
+    private void CalculateFlushVolume()
+    {
+        flushVolume = data.BodyWeight switch
+        {
+            < 1.5 => 1,
+            < 2 => 1.5,
+            < 3 => 2,
+            < 4 => 2.5,
+            < 4.5 => 3,
+            < 5 => 4,
+            < 8 => 5,
+            < 20 => 6,
+            _ => 10,
+        };
     }
 }

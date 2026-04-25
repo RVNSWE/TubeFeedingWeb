@@ -1,4 +1,4 @@
-﻿namespace TubeFeedingWeb.Client
+﻿namespace TubeFeedingWeb
 {
     /*
      * Calculate food and water volumes for a specific day.
@@ -24,9 +24,9 @@
             FormattedFeedingTimes = [];
         }
 
-        public void Calculate()
+        public void Calculate(int fractionRER, double flushVolume)
         {
-            float dayMultiplier = data.FractionRER * Day; // Fraction of RER to feed on this day
+            float dayMultiplier = fractionRER * Day; // Fraction of RER to feed on this day
             double rER = 70 * Math.Pow(data.BodyWeight, 0.75) * dayMultiplier; // Resting energy requirement (kcal)
             double foodPerDay = rER / data.KcalPerG; // Total food per day (g)
             ContainersPerDay = foodPerDay / data.DietNetWeight; // Estimated containers of food used up per day
@@ -49,7 +49,7 @@
             }
 
             FoodPerMeal = foodPerDay / MealsPerDay; // Food to administer per meal (g)
-            WaterPerMeal = (waterPerDay / MealsPerDay) - (data.FlushVolume * 2); // Extra water needed per meal (ml)
+            WaterPerMeal = (waterPerDay / MealsPerDay) - (flushVolume * 2); // Extra water needed per meal (ml)
 
             if (WaterPerMeal < 0)
             {
@@ -84,7 +84,7 @@
         {
             double waterPerDay;
 
-            if (data.Species == true)
+            if (data.Species == "cat")
             {
                 waterPerDay = 80 * Math.Pow(data.BodyWeight, 0.75);
             }
