@@ -10,7 +10,7 @@ namespace TubeFeedingWeb
             Range(0.01, 200, ErrorMessage = "Please enter a valid body weight in kg, eg. 5.4.")]
         public double BodyWeight { get; set; } // (kg)
         [Range(1, 10, ErrorMessage = "Please enter a whole number from 1 to 10.")]
-        public int Days { get; set; } = 3;
+        public int Days { get; set; }
         [RegularExpression(@"^(\w)$", ErrorMessage = "Only alphanumeric characters are permitted (a-z)."),
             MaxLength(100, ErrorMessage = "Length cannot exceed 100 characters.")]
         public string? PatientName { get; set; } = string.Empty;

@@ -12,22 +12,22 @@
         <div>
             <form>
                 <ul>
-                    <li><label>Patient name:<input @bind=data.PatientName></input></label></li>
+                    <li><label>Patient name:<input @bind=newPatientName></input></label></li>
                     <li>
                         <label>Species:
                                 @foreach (string species in speciesSelection)
                                 {
-                                    <label>@species<radio Name="species" value="@species"></radio></label>
+                                    <label>@species<radio @bind=newSpecies Name="species" value="@species"></radio></label>
                                 }
                         </label>
                     </li>
-                    <li><label>Body weight:<input @bind="data.BodyWeight" min="0" max="200"></input></label>kg</li>
-                    <li><label>Name of diet to be fed:<input @bind=data.DietName></input></label></li>
-                    <li><label>Kcal per gram:<input @bind=data.KcalPerG min="0" max="10"></input></label></li>
-                    <li><label>Net weight per container (g or ml):<input @bind=data.DietNetWeight min="0" max="1000"></input></label></li>
-                    <li><label>Moisture content (%):<input @bind=data.DietWaterPercentage min="0" max="100"></input></label></li>
-                    <li><label>Number of days to re-feed over (enter "1" if starting at full RER):<input @bind=data.Days min="1" max="10"></input></label></li>
-                    <li><input type="submit" value="Calculate" disabled=@calculating /></li>
+                    <li><label>Body weight:<input @bind="newBodyWeight" min="0" max="200"></input></label>kg</li>
+                    <li><label>Name of diet to be fed:<input @bind=newDietName></input></label></li>
+                    <li><label>Kcal per gram:<input @bind=newKcalPerG min="0" max="10"></input></label></li>
+                    <li><label>Net weight per container (g or ml):<input @bind=newDietNetWeight min="0" max="1000"></input></label></li>
+                    <li><label>Moisture content (%):<input @bind=newDietWaterPercentage min="0" max="100"></input></label></li>
+                    <li><label>Number of days to re-feed over (enter "1" if starting at full RER):<input @bind=newDays min="1" max="10"></input></label></li>
+                    <li><button @onclick="Calculate">Calculate</button></li>
                 </ul>
             </form>
         </div>
@@ -161,15 +161,34 @@
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
     List<string> speciesSelection = ["cat", "dog"];
-    int fractionRER;
-    double flushVolume;
-
     bool calculating = false;
     bool calculated = false;
+    int fractionRER;
+    double flushVolume;
+    string newSpecies = string.Empty;
+    double newBodyWeight;
+    int newDays = 3;
+    string newPatientName = string.Empty;
+    string newDietName = string.Empty;
+    double newKcalPerG;
+    double newDietNetWeight;
+    double newDietWaterPercentage;
 
-    private async Task ProcessData(EditContext editContext)
+    private async Task Calculate()
     {
         calculating = true;
+
+        data = new()
+            {
+                Species = newSpecies,
+                BodyWeight = newBodyWeight,
+                Days = newDays,
+                PatientName = ProcessString(newPatientName),
+                DietName = ProcessString(newDietName),
+                KcalPerG = newKcalPerG,
+                DietNetWeight = newDietNetWeight,
+                DietWaterPercentage = newDietWaterPercentage
+            };
 
         CalculateFractionRER();
         CalculateFlushVolume();
@@ -238,5 +257,19 @@
             < 20 => 6,
             _ => 10,
         };
+    }
+
+    private string ProcessString(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            value = "";
+        }
+        else
+        {
+            value = value.Trim();
+        }
+
+        return value;
     }
 }
