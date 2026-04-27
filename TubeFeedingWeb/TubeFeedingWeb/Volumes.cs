@@ -7,37 +7,49 @@
     {
         public double ContainersPerDay { get; set; }
         public int MealsPerDay { get; set; }
-        public double MaxVolumePerMeal { get; set; }
         public double TotalVolumePerMeal { get; set; }
         public double FoodPerMeal { get; set; }
         public double WaterPerMeal { get; set; }
         public int Day { get; set; }
         public IReadOnlyCollection<string> FormattedFeedingTimes { get; set; }
 
-        private double totalVolumePerDay; // (ml)
+        private double maxVolumePerMeal;
+        private double totalVolumePerDay;
         private readonly PatientDietData data;
 
-        public Volumes(PatientDietData data, int day)
+        public Volumes(PatientDietData patientDietData, int day)
         {
-            this.data = data;
+            data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
+
+            if (Day < data.Days * 0.5)
+            {
+                maxVolumePerMeal = data.BodyWeight * 10.0;
+            }
+            else if (Day < data.Days)
+            {
+                maxVolumePerMeal = data.BodyWeight * 15.0;
+            }
+            else
+            {
+                maxVolumePerMeal = data.BodyWeight * 20.0;
+            }
         }
 
-        public void Calculate(int fractionRER, double flushVolume)
+        public void Calculate()
         {
-            float dayMultiplier = fractionRER * Day; // Fraction of RER to feed on this day
+            double dayMultiplier = data.FractionRER * Day; // Fraction of RER to feed on this day
             double rER = 70 * Math.Pow(data.BodyWeight, 0.75) * dayMultiplier; // Resting energy requirement (kcal)
             double foodPerDay = rER / data.KcalPerG; // Total food per day (g)
             ContainersPerDay = foodPerDay / data.DietNetWeight; // Estimated containers of food used up per day
             double dietWaterVolume = foodPerDay * (data.DietWaterPercentage / 100); // Volume of water contained in food (ml)
-            MaxVolumePerMeal = data.BodyWeight * 20; // Max volume to be administered per meal (ml)
-            double waterPerDay = CalculateWaterPerDay(dietWaterVolume); // Additional water needed per day (ml)
+            double waterPerDay = CalculateWaterPerDay() - dietWaterVolume; // Additional water needed per day (ml)
             totalVolumePerDay = foodPerDay + waterPerDay; // Estimated total volume administered per day (ml)
-            MealsPerDay = (int)Math.Round(totalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Number of meals per day
+            MealsPerDay = (int)Math.Round(totalVolumePerDay / maxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Number of meals per day
             TotalVolumePerMeal = totalVolumePerDay / MealsPerDay; // Estimated total volume administered per meal (ml)
 
-            while (TotalVolumePerMeal > MaxVolumePerMeal) // While the volume administered per meal exceeds the max allowable volume
+            while (TotalVolumePerMeal > maxVolumePerMeal) // While the volume administered per meal exceeds the max allowable volume
             {
                 MealsPerDay++; // Add another meal per day
                 TotalVolumePerMeal = totalVolumePerDay / MealsPerDay; // Recalculate the volume per meal
@@ -49,7 +61,7 @@
             }
 
             FoodPerMeal = foodPerDay / MealsPerDay; // Food to administer per meal (g)
-            WaterPerMeal = (waterPerDay / MealsPerDay) - (flushVolume * 2); // Extra water needed per meal (ml)
+            WaterPerMeal = (waterPerDay / MealsPerDay) - (data.FlushVolume * 2); // Extra water needed per meal (ml)
 
             if (WaterPerMeal < 0)
             {
@@ -78,9 +90,9 @@
         }
 
         /*
-         * Calculate the estimated daily fluid requirement based on species (true = cat, false = dog), and return the result.
+         * Calculate the estimated daily fluid requirement based on species and return the result.
          */
-        private double CalculateWaterPerDay(double dietWaterVolume)
+        private double CalculateWaterPerDay()
         {
             double waterPerDay;
 
@@ -91,11 +103,6 @@
             else
             {
                 waterPerDay = 132 * Math.Pow(data.BodyWeight, 0.75);
-            }
-
-            if (dietWaterVolume > 0)
-            {
-                waterPerDay -= dietWaterVolume;
             }
 
             return waterPerDay;

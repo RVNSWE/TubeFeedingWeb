@@ -10,7 +10,7 @@
         <h3>Calculate Feeding Volumes</h3>
 
         <div>
-            <EditForm Model="@data" OnValidSubmit=@ProcessData OnInvalidSubmit=@ShowFeedback>
+            <EditForm Model="@data" OnValidSubmit=@ProcessData>
                 <DataAnnotationsValidator />
                 <label>Patient name:
                     <InputText @bind-Value=data.PatientName />
@@ -62,16 +62,17 @@
             <li>Species: @data.Species</li>
             <li>Diet name: @data.DietName</li>
             <li>Days of reduced RER: @data.Days</li>
+            <li>RER fraction: @data.FractionRER (1 / @data.Days)</li>
             <li>Kcal/g: @data.KcalPerG</li>
             <li>Diet net weight: @data.DietNetWeight g</li>
             <li>Diet water content: @data.DietWaterPercentage %</li>
-            <li>Flush volume: @flushVolume ml</li>
-            <li>RER fraction: @fractionRER</li>
+            <li>Flush volume: @data.FlushVolume ml</li>
         </ul>
 
         <h3>Tube Feeding Instructions for @data.PatientName</h3>
 
         <p>Diet: <strong>@data.DietName</strong></p>
+        <p>Water per flush: <strong>@data.FlushVolume ml</strong></p>
 
         @foreach (Volumes meal in calculatedVolumes)
         {
@@ -159,9 +160,7 @@
 @code {
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
-    List<string> speciesSelection = ["cat", "dog"];
-    int fractionRER;
-    double flushVolume;
+    List<string> speciesSelection = ["Cat", "Dog"];
 
     bool calculating = false;
     bool calculated = false;
@@ -172,23 +171,29 @@
 
         var model = editContext.Model as PatientDietData;
 
-        CalculateFractionRER();
-        CalculateFlushVolume();
+        data.FractionRER = 1.0 / (double)data.Days; // Calculate the initial fraction of RER to meet
+
+        data.FlushVolume = data.BodyWeight switch
+        {
+            < 1.5 => 1,
+            < 2 => 1.5,
+            < 4 => 2,
+            < 6 => 2.5,
+            < 8 => 3,
+            < 10 => 5,
+            < 20 => 6,
+            _ => 10,
+        };
 
         @for (int day = 1; day < data.Days + 1; day++)
         {
             Volumes volumes = new(data, day);
-            volumes.Calculate(fractionRER, flushVolume);
+            volumes.Calculate();
             calculatedVolumes.Add(volumes);
         }
 
         calculating = false;
         calculated = true;
-    }
-
-    private void ShowFeedback(EditContext context)
-    {
-        
     }
 
     private void Reset()
@@ -207,29 +212,5 @@
         };
 
         return text;
-    }
-    private void CalculateFractionRER()
-    {
-        fractionRER = 1 / data.Days; // Calculate the initial fraction of RER to meet
-    }
-
-    /*
-     * Calculate the volume of water to flush the feeding tube with before and after each feed.
-     * If bodyweight is greater than value, check next value. Return first value lower than bodyweight.
-     */
-    private void CalculateFlushVolume()
-    {
-        flushVolume = data.BodyWeight switch
-        {
-            < 1.5 => 1,
-            < 2 => 1.5,
-            < 3 => 2,
-            < 4 => 2.5,
-            < 4.5 => 3,
-            < 5 => 4,
-            < 8 => 5,
-            < 20 => 6,
-            _ => 10,
-        };
     }
 }

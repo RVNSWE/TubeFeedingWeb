@@ -26,5 +26,7 @@ namespace TubeFeedingWeb
         [Required(ErrorMessage = "Please enter the percentage moisture content of the diet."),
             Range(1,99, ErrorMessage = "Only numbers from 1 - 99 are valid. If using a powdered food, please enter the percentage moisture content after reconstitution.")]
         public double DietWaterPercentage { get; set; }
+        public double FractionRER { get; set; }
+        public double FlushVolume { get; set; }
     }
 }
