@@ -1,74 +1,73 @@
 ﻿@page "/calculator"
-@rendermode InteractiveAuto
+@rendermode InteractiveServer
 
 <PageTitle>Calculator</PageTitle>
 
 <div class="main">
 
-    @if (calculated == false)
+    @if (!calculated)
     {
         <h3>Calculate Feeding Volumes</h3>
 
         <div>
-            <form>
-                <ul>
-                    <li><label>Patient name:<input @bind=data.PatientName></input></label></li>
-                    <li>
-                        <label>Species:
-                                @foreach (string species in speciesSelection)
-                                {
-                                    <label>@species<radio Name="species" value="@species"></radio></label>
-                                }
-                        </label>
-                    </li>
-                    <li><label>Body weight:<input @bind="data.BodyWeight" min="0" max="200"></input></label>kg</li>
-                    <li><label>Name of diet to be fed:<input @bind=data.DietName></input></label></li>
-                    <li><label>Kcal per gram:<input @bind=data.KcalPerG min="0" max="10"></input></label></li>
-                    <li><label>Net weight per container (g or ml):<input @bind=data.DietNetWeight min="0" max="1000"></input></label></li>
-                    <li><label>Moisture content (%):<input @bind=data.DietWaterPercentage min="0" max="100"></input></label></li>
-                    <li><label>Number of days to re-feed over (enter "1" if starting at full RER):<input @bind=data.Days min="1" max="10"></input></label></li>
-                    <li><input type="submit" value="Calculate" disabled=@calculating /></li>
-                </ul>
-            </form>
-        </div>
-
-        @* <div>
-            <EditForm Model="data" OnSubmit="ProcessData">
-                <ul>
-                    <li><label>Patient name:<InputText @bind-Value=data.PatientName></InputText></label></li>
-                    <li><ValidationMessage For="@(() => data.PatientName)" /></li>
-                    <li>
-                        <label>Species:
-                            <InputRadioGroup Name="species" @bind-Value=data.Species>
-                                @foreach (string species in speciesSelection)
-                                {
-                                    <label>@species<InputRadio Name="species" Value="@species"></InputRadio></label>
-                                }
-                            </InputRadioGroup>
-                        </label>
-                    </li>
-                    <li><label>Body weight:<InputNumber @bind-Value="data.BodyWeight" min="0" max="200"></InputNumber></label>kg</li>
-                    <li><ValidationMessage For="@(() => data.BodyWeight)" /></li>
-                    <li><label>Name of diet to be fed:<InputText @bind-Value=data.DietName></InputText></label></li>
-                    <li><ValidationMessage For="@(() => data.DietName)" /></li>
-                    <li><label>Kcal per gram:<InputNumber @bind-Value=data.KcalPerG min="0" max="10"></InputNumber></label></li>
-                    <li><ValidationMessage For="@(() => data.KcalPerG)" /></li>
-                    <li><label>Net weight per container (g or ml):<InputNumber @bind-Value=data.DietNetWeight min="0" max="1000"></InputNumber></label></li>
-                    <li><ValidationMessage For="@(() => data.DietNetWeight)" /></li>
-                    <li><label>Moisture content (%):<InputNumber @bind-Value=data.DietWaterPercentage min="0" max="100"></InputNumber></label>%</li>
-                    <li><ValidationMessage For="@(() => data.DietWaterPercentage)" /></li>
-                    <li><label>Number of days to re-feed over (enter "1" if starting at full RER):<InputNumber @bind-Value=data.Days min="1" max="10"></InputNumber></label></li>
-                    <li><ValidationMessage For="@(() => data.Days)" /></li>
-                    <li><input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating /></li>
-                </ul>
+            <EditForm Model="@data" OnValidSubmit=@ProcessData OnInvalidSubmit=@ShowFeedback>
                 <DataAnnotationsValidator />
+                <label>Patient name:
+                    <InputText @bind-Value=data.PatientName />
+                </label>
+                <ValidationMessage For="@(() => data.PatientName)" />
+                <label>Species:
+                    <InputRadioGroup Name="species" @bind-Value=data.Species>
+                        @foreach (string species in speciesSelection)
+                        {
+                            <label>@species<InputRadio Name="species" Value="@species" /></label>
+                        }
+                    </InputRadioGroup>
+                </label>
+                <label>Body weight:
+                    <InputNumber @bind-Value="data.BodyWeight" min="0" max="200" />
+                </label>kg
+                <ValidationMessage For="@(() => data.BodyWeight)" />
+                <label>Name of diet to be fed:
+                    <InputText @bind-Value=data.DietName />
+                </label>
+                <ValidationMessage For="@(() => data.DietName)" />
+                <label>Kcal per gram:
+                    <InputNumber @bind-Value=data.KcalPerG min="0" max="10" />
+                </label>
+                <ValidationMessage For="@(() => data.KcalPerG)" />
+                <label>Net weight per container (g or ml):
+                    <InputNumber @bind-Value=data.DietNetWeight min="0" max="1000" />
+                </label>
+                <ValidationMessage For="@(() => data.DietNetWeight)" />
+                <label>Moisture content (%):
+                    <InputNumber @bind-Value=data.DietWaterPercentage min="0" max="100" />
+                </label>%
+                <ValidationMessage For="@(() => data.DietWaterPercentage)" />
+                <label>Number of days to re-feed over (enter "1" if starting at full RER):
+                    <InputNumber @bind-Value=data.Days min="1" max="10" />
+                </label>
+                <ValidationMessage For="@(() => data.Days)" />
+                <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
             </EditForm>
-        </div> *@
+        </div>
     }
-
-    @if (calculated == true)
+    else if (calculated)
     {
         <button @onclick="Reset">Reset</button>
+
+        <ul>
+            <li>Patient name: @data.PatientName</li>
+            <li>Body weight: @data.BodyWeight kg</li>
+            <li>Species: @data.Species</li>
+            <li>Diet name: @data.DietName</li>
+            <li>Days of reduced RER: @data.Days</li>
+            <li>Kcal/g: @data.KcalPerG</li>
+            <li>Diet net weight: @data.DietNetWeight g</li>
+            <li>Diet water content: @data.DietWaterPercentage %</li>
+            <li>Flush volume: @flushVolume ml</li>
+            <li>RER fraction: @fractionRER</li>
+        </ul>
 
         <h3>Tube Feeding Instructions for @data.PatientName</h3>
 
@@ -124,33 +123,33 @@
         </p>
         <h3>Administering the food</h3>
         <p>
-        <ol>
-            <li>
-                <strong><u>1.</u></strong> Pinch the feeding tube to prevent food from leaking out when you remove the cap. Attach an
-                empty syringe to the feeding tube port, stop pinching, and gently draw back on the plunger. You
-                should feel some resistance, and the plunger should return to its starting position when you let go
-                of it. <strong>If this does not happen, it may mean the tube has become displaced. STOP immediately, and
-                contact the clinic for advice.</strong>
-            </li>
-            <li>
-                <strong><u>2.</u></strong> <strong>Slowly</strong> flush the feeding tube with water before administering any food.
-                <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP immediately
-                and contact the clinic for advice.</strong>
-            </li>
-            <li>
-                <strong><u>3.</u></strong> Slowly administer the prepared volume of food through the tube. You may notice your pet
-                swallowing as you do this. This is normal, as the food is being administered into the oesophagus
-                rather than directly into the stomach. If they regurgitate, slow down the rate of administration. <strong>If
-                regurgitation continues, stop feeding and contact the clinic for advice.</strong>
-            </li>
-            <li>
-                <strong><u>4.</u></strong> Slowly flush the tube with water again to clear it of any residual food.
-            </li>
-            <li>
-                <strong><u>5.</u></strong> Place the cap back on the feeding tube and wipe away any food from the outside of the tube
-                with a clean, damp cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
-                the used syringes with water to clean them ready for the next feed.
-            </li>
+            <ol>
+                <li>
+                    Pinch the feeding tube to prevent food from leaking out when you remove the cap. Attach an
+                    empty syringe to the feeding tube port, stop pinching, and gently draw back on the plunger. You
+                    should feel some resistance, and the plunger should return to its starting position when you let go
+                    of it. <strong>If this does not happen, it may mean the tube has become displaced. STOP immediately, and
+                    contact the clinic for advice.</strong>
+                </li>
+                <li>
+                    <strong>Slowly</strong> flush the feeding tube with water before administering any food.
+                    <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP immediately
+                    and contact the clinic for advice.</strong>
+                </li>
+                <li>
+                    Slowly administer the prepared volume of food through the tube. You may notice your pet
+                    swallowing as you do this. This is normal, as the food is being administered into the oesophagus
+                    rather than directly into the stomach. If they regurgitate, slow down the rate of administration. <strong>If
+                    regurgitation continues, stop feeding and contact the clinic for advice.</strong>
+                </li>
+                <li>
+                    Slowly flush the tube with water again to clear it of any residual food.
+                </li>
+                <li>
+                    Place the cap back on the feeding tube and wipe away any food from the outside of the tube
+                    with a clean, damp cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
+                    the used syringes with water to clean them ready for the next feed.
+                </li>
             </ol>
         </p>
     }
@@ -171,21 +170,10 @@
     {
         calculating = true;
 
+        var model = editContext.Model as PatientDietData;
+
         CalculateFractionRER();
         CalculateFlushVolume();
-
-        flushVolume = data.BodyWeight switch
-        {
-            < 1.5 => 1,
-            < 2 => 1.5,
-            < 3 => 2,
-            < 4 => 2.5,
-            < 4.5 => 3,
-            < 5 => 4,
-            < 8 => 5,
-            < 20 => 6,
-            _ => 10,
-        };
 
         @for (int day = 1; day < data.Days + 1; day++)
         {
@@ -196,6 +184,11 @@
 
         calculating = false;
         calculated = true;
+    }
+
+    private void ShowFeedback(EditContext context)
+    {
+        
     }
 
     private void Reset()
