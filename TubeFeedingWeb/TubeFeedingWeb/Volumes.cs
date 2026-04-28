@@ -13,7 +13,6 @@
         public int Day { get; set; }
         public IReadOnlyCollection<string> FormattedFeedingTimes { get; set; }
 
-        private double maxVolumePerMeal;
         private double totalVolumePerDay;
         private readonly PatientDietData data;
 
@@ -22,25 +21,13 @@
             data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
-
-            if (Day < data.Days * 0.5)
-            {
-                maxVolumePerMeal = data.BodyWeight * 10.0;
-            }
-            else if (Day < data.Days)
-            {
-                maxVolumePerMeal = data.BodyWeight * 15.0;
-            }
-            else
-            {
-                maxVolumePerMeal = data.BodyWeight * 20.0;
-            }
         }
 
         public void Calculate()
         {
+            double maxVolumePerMeal = GetMaxVolumePerMeal();
             double dayMultiplier = data.FractionRER * Day; // Fraction of RER to feed on this day
-            double rER = 70 * Math.Pow(data.BodyWeight, 0.75) * dayMultiplier; // Resting energy requirement (kcal)
+            double rER = GetRER(dayMultiplier); // Resting energy requirement (kcal)
             double foodPerDay = rER / data.KcalPerG; // Total food per day (g)
             ContainersPerDay = foodPerDay / data.DietNetWeight; // Estimated containers of food used up per day
             double dietWaterVolume = foodPerDay * (data.DietWaterPercentage / 100); // Volume of water contained in food (ml)
@@ -89,6 +76,42 @@
             FormattedFeedingTimes = CreateFormattedListOfTimes(feedingTimes);
         }
 
+        private double GetMaxVolumePerMeal()
+        {
+            double maxVolumePerMeal;
+
+            if (Day < data.Days * 0.5)
+            {
+                maxVolumePerMeal = data.BodyWeight * 10.0;
+            }
+            else if (Day < data.Days)
+            {
+                maxVolumePerMeal = data.BodyWeight * 15.0;
+            }
+            else
+            {
+                maxVolumePerMeal = data.BodyWeight * 20.0;
+            }
+
+            return maxVolumePerMeal;
+        }
+
+        private double GetRER(double dayMultiplier)
+        {
+            double rER;
+
+            if (Day < data.Days)
+            {
+                rER = 70 * Math.Pow(data.BodyWeight, 0.75) * dayMultiplier;
+            }
+            else
+            {
+                rER = 70 * Math.Pow(data.BodyWeight, 0.75);
+            }    
+
+            return rER;
+        }
+
         /*
          * Calculate the estimated daily fluid requirement based on species and return the result.
          */
@@ -96,7 +119,7 @@
         {
             double waterPerDay;
 
-            if (data.Species == "cat")
+            if (data.Species == "Cat")
             {
                 waterPerDay = 80 * Math.Pow(data.BodyWeight, 0.75);
             }
