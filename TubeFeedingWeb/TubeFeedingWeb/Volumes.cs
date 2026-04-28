@@ -14,6 +14,11 @@
         public IReadOnlyCollection<string> FormattedFeedingTimes { get; set; }
 
         private double totalVolumePerDay;
+        private double interval;
+        private double mealHalfTime;
+        private double midPoint;
+        private double startTime;
+        private double endTime;
         private readonly PatientDietData data;
 
         public Volumes(PatientDietData patientDietData, int day)
@@ -55,27 +60,31 @@
                 WaterPerMeal = 0; // Water per meal cannot be negative
             }
 
-            switch (data.BodyWeight) // Round volumes per meal to more appropriate SF
-            {
-                case < 10:
-                    FoodPerMeal = Math.Round(FoodPerMeal, 2, MidpointRounding.AwayFromZero);
-                    WaterPerMeal = Math.Round(WaterPerMeal, 2, MidpointRounding.AwayFromZero);
-                    break;
-                case < 20:
-                    FoodPerMeal = Math.Round(FoodPerMeal, 1, MidpointRounding.AwayFromZero);
-                    WaterPerMeal = Math.Round(WaterPerMeal, 1, MidpointRounding.AwayFromZero);
-                    break;
-                default:
-                    FoodPerMeal = Math.Round(FoodPerMeal, 0, MidpointRounding.AwayFromZero);
-                    WaterPerMeal = Math.Round(WaterPerMeal, 0, MidpointRounding.AwayFromZero);
-                    break;
-            }
+            FoodPerMeal = RoundDigits(FoodPerMeal);
+            WaterPerMeal = RoundDigits(WaterPerMeal);
+
             ContainersPerDay = Math.Round(ContainersPerDay, 1, MidpointRounding.AwayFromZero);
 
-            IReadOnlyCollection<double> feedingTimes = CalculateFeedingPlan(MealsPerDay);
+            IReadOnlyCollection<double> feedingTimes = CalculateFeedingPlan();
             FormattedFeedingTimes = CreateFormattedListOfTimes(feedingTimes);
         }
 
+        private static double RoundDigits(double valueToRound)
+        {
+            double roundedValue = valueToRound switch // Round volumes to more appropriate SF
+            {
+                < 10 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
+                < 20 => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
+                _ => Math.Round(valueToRound, 0, MidpointRounding.AwayFromZero),
+            };
+
+            return roundedValue;
+        }
+
+        /*
+         * If on re-feeding plan, start at 10ml/kg/meal, then 15ml/kg/meal once halfway to full RER,
+         * then 20ml/kg/meal once on full RER.
+         */
         private double GetMaxVolumePerMeal()
         {
             double maxVolumePerMeal;
@@ -96,6 +105,9 @@
             return maxVolumePerMeal;
         }
 
+        /*
+         * Get RER for current day of re-feeding plan.
+         */
         private double GetRER(double dayMultiplier)
         {
             double rER;
@@ -134,39 +146,50 @@
         /*
          * Calculate the time interval between feeds.
          */
-        public static double CalculateInterval(double mealsPerDay)
+        public void CalculateInterval()
         {
             int hours = 15; // Number of hours to spread the feeds over
 
-            double preciseInterval = hours / mealsPerDay;
-            double interval = Math.Round(preciseInterval / 5, 1, MidpointRounding.AwayFromZero) * 5; // Round to the nearest 5 = to the nearest half hour
+            double preciseInterval = (double)hours / (double)MealsPerDay;
+            interval = Math.Round(preciseInterval / 5, 1, MidpointRounding.AwayFromZero) * 5; // Round to the nearest 5 = to the nearest half hour
 
             if (interval < 1) // If interval less than one hour
             {
                 interval = 1; // Set feeding interval to one hour (constraint: interval can never be less than an hour)
             }
-
-            return interval;
         }
 
         /*
-         * Calculate the first and last feeding times of the day from an initial assumed midpoint of 16:00 (4pm).
+         * Calculate the first and last feeding times of the day.
          */
-        public static List<double> CalculateFeedingPlan(double mealsPerDay)
+        private void CalculateTimeLine()
         {
-            double interval = CalculateInterval(mealsPerDay);
+            double feedingHours = (double)MealsPerDay * (double)interval; // The actual number of hours the feeds are spread over
+            double preciseMealHalfTime = feedingHours / 2; // Half the total number of hours to adminster feeds over per day
+            mealHalfTime = Math.Round(preciseMealHalfTime / 5, 1, MidpointRounding.AwayFromZero) * 5; // Round to the nearest 5
+            startTime = midPoint - mealHalfTime; // Calculate the feeding schedule start time from its mid point
+            endTime = startTime + feedingHours; // Calculate the end feeding time
+        }
 
-            double preciseMealHalfTime = (mealsPerDay * interval) / 2; // Effectively half the total number of hours to adminster feeds over per day
-            double mealHalfTime = Math.Round(preciseMealHalfTime / 5, 1, MidpointRounding.AwayFromZero) * 5; // Round to the nearest 5
-            int midPoint = 16; // Corresponding to 16:00 or 4pm
-            double startTime = midPoint - mealHalfTime; // Calculate the feeding schedule start time from its mid point
-            double endTime = startTime + mealHalfTime; // Calculate the end time from the mid point
+        /*
+         * Calculate the feeding schedule.
+         */
+        public List<double> CalculateFeedingPlan()
+        {
+            midPoint = 15; // Corresponding to 16:00 (4pm)
+            CalculateInterval();
+            CalculateTimeLine();
 
-            while (endTime > 23.5) // While current end time is later than 23:30
+            while (startTime > 8 && endTime < 22)
             {
-                midPoint -= 1; // Shift the mid point one hour earlier
-                startTime = midPoint - mealHalfTime; // Recalculate the start time
-                endTime = midPoint + mealHalfTime; // Recalculate the end time
+                interval += 0.5;
+                CalculateTimeLine();
+            }
+
+            if (endTime > 23) // While current end time is later than 23:30
+            {
+                startTime -= 23 - endTime;
+                endTime = 23;
             }
 
             double time = startTime; // Start from the calculated start time
@@ -175,13 +198,13 @@
 
             if (interval > 1) // If the interval is longer than 1 hour
             {
-                for (int i = 0; i < mealsPerDay; i++) // For each meal to be scheduled
+                for (int i = 0; i < MealsPerDay; i++) // For each meal to be scheduled
                 {
                     feedingTimes.Add(time); // Add this time to the list
                     time += interval; // Increment the time by the calculated interval
                 }
             }
-            else if (mealsPerDay > 23) // Otherwise, if the patient needs more than 23 meals per day
+            else if (MealsPerDay > 23) // Otherwise, if the patient needs more than 23 meals per day
             {
                 time = 0; // Set the time to midnight
                 for (int i = 0; i < 24; i++) // For each meal (which will be every hour)
@@ -192,7 +215,7 @@
             }
             else // Otherwise
             {
-                for (int i = 0; i < mealsPerDay; i++) // For each meal to be scheduled
+                for (int i = 0; i < MealsPerDay; i++) // For each meal to be scheduled
                 {
                     feedingTimes.Add(time); // Add this time to the list
                     time++; // Increment the time by one hour
@@ -203,7 +226,7 @@
         }
 
         /*
-         * Convert the calculated times into a human readable list of times
+         * Make the calculated times human readable.
          */
         public static List<string> CreateFormattedListOfTimes(IReadOnlyCollection<double> list)
         {
