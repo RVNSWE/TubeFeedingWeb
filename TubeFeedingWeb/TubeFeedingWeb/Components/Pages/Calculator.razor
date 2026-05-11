@@ -9,14 +9,16 @@
     {
         <h3>Calculate Feeding Volumes</h3>
 
-        <div>
-            <EditForm Model="@data" OnValidSubmit=@ProcessData>
+        <EditForm Model="@data" OnValidSubmit=@ProcessData>
+            <div class="tool-container">
                 <DataAnnotationsValidator />
-                <label>Patient name:
+                <label class="flex-item">
+                    Patient name:
                     <InputText @bind-Value=data.PatientName />
                 </label>
                 <ValidationMessage For="@(() => data.PatientName)" />
-                <label>Species:
+                <label class="flex-item">
+                    Species:
                     <InputRadioGroup Name="species" @bind-Value=data.Species>
                         @foreach (string species in speciesSelection)
                         {
@@ -24,38 +26,44 @@
                         }
                     </InputRadioGroup>
                 </label>
-                <label>Body weight:
+                <label class="flex-item">
+                    Body weight:
                     <InputNumber @bind-Value="data.BodyWeight" min="0" max="200" />
-                </label>kg
-                <ValidationMessage For="@(() => data.BodyWeight)" />
-                <label>Name of diet to be fed:
+                    kg
+                </label>
+                <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
+                <label class="flex-item">
+                    Name of diet to be fed:
                     <InputText @bind-Value=data.DietName />
                 </label>
-                <ValidationMessage For="@(() => data.DietName)" />
-                <label>Kcal per gram:
+                <ValidationMessage For="@(() => data.DietName)" class="flex-item" />
+                <label class="flex-item">
+                    Kcal per gram:
                     <InputNumber @bind-Value=data.KcalPerG min="0" max="10" />
                 </label>
-                <ValidationMessage For="@(() => data.KcalPerG)" />
-                <label>Net weight per container (g or ml):
+                <ValidationMessage For="@(() => data.KcalPerG)" class="flex-item" />
+                <label class="flex-item">
+                    Net weight per container (g or ml):
                     <InputNumber @bind-Value=data.DietNetWeight min="0" max="1000" />
                 </label>
-                <ValidationMessage For="@(() => data.DietNetWeight)" />
-                <label>Moisture content (%):
+                <ValidationMessage For="@(() => data.DietNetWeight)" class="flex-item" />
+                <label class="flex-item">
+                    Moisture content (%):
                     <InputNumber @bind-Value=data.DietWaterPercentage min="0" max="100" />
-                </label>%
-                <ValidationMessage For="@(() => data.DietWaterPercentage)" />
-                <label>Number of days to re-feed over (enter "1" if starting at full RER):
+                    %
+                </label>
+                <ValidationMessage For="@(() => data.DietWaterPercentage)" class="flex-item" />
+                <label class="flex-item">
+                    Number of days to re-feed over (enter "1" if starting at full RER):
                     <InputNumber @bind-Value=data.Days min="1" max="10" />
                 </label>
-                <ValidationMessage For="@(() => data.Days)" />
+                <ValidationMessage For="@(() => data.Days)" class="flex-item" />
                 <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
-            </EditForm>
-        </div>
+            </div>
+        </EditForm>
     }
     else if (calculated)
     {
-        <button @onclick="Reset">Reset</button>
-
         <ul>
             <li>Patient name: @data.PatientName</li>
             <li>Body weight: @data.BodyWeight kg</li>
@@ -70,89 +78,95 @@
         </ul>
 
         <h3>Tube Feeding Instructions for @data.PatientName</h3>
+            
+        <div class="tool-container">
+            <p>Diet: <strong>@data.DietName</strong></p>
+            <p>Water per flush: <strong>@data.FlushVolume ml</strong></p>
 
-        <p>Diet: <strong>@data.DietName</strong></p>
-        <p>Water per flush: <strong>@data.FlushVolume ml</strong></p>
+            @foreach (Volumes meal in calculatedVolumes)
+            {
+                <div id="day">
+                    <p><strong><u>Day: @meal.Day</u></strong></p>
+                    <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
+                    <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                    <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
+                    <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @ContainerText(meal)</strong></p>
+                    <p>
+                        Example feeding schedule:
+                        @foreach (string time in meal.FormattedFeedingTimes)
+                        {
+                            <span id="time">@time || </span>
+                        }
+                    </p>
+                </div>
+            }
 
-        @foreach (Volumes meal in calculatedVolumes)
-        {
-            <div id="day">
-            <p><strong><u>Day: @meal.Day</u></strong></p>
-            <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
-            <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
-            <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
-            <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @ContainerText(meal)</strong></p>
-            <p>Example feeding schedule: 
-                @foreach (string time in meal.FormattedFeedingTimes)
-                {
-                    <span id="time">@time</span>
-                }
+            <p>
+                <strong>It is vital you follow the above feeding plan in order to prevent refeeding syndrome.</strong> Refeeding
+                syndrome is a life-threatening condition caused by reintroducing food too rapidly after prolonged
+                periods of not eating, which is why it must be done gradually over the first three days.
             </p>
-            </div>
-        }
-
-        <p>
-            <strong>It is vital you follow the above feeding plan in order to prevent refeeding syndrome.</strong> Refeeding
-            syndrome is a life-threatening condition caused by reintroducing food too rapidly after prolonged
-            periods of not eating, which is why it must be done gradually over the first three days.
-        </p>
-        <p>
-            You are free to adjust the times at which you feed your pet to suit you, but please spread them out as
-            much as possible and allow a minimum of one hour between feeds to avoid overloading the stomach and
-            causing regurgitation.
-        </p>
-        <p>
-            Unless advised otherwise by your clinic, fresh water should remain available at all times and you
-            should leave the calculated volume of food in your pet's normal bowl between feeds to allow the
-            opportunity to eat unassisted. If it has all been eaten by the time of their next scheduled feed, offer
-            a fresh bowl of food instead of tube feeding. Otherwise, draw up any remaining uneaten food into
-            a syringe (or the same volume of fresh food if it's looking dry or stale). This is the volume of food
-            you will need to administer to your pet this session.
-        </p>
-        <h3>Preparing the food</h3>
-        <p>
-            Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has not
-            been drinking anything, you will also need to mix in additional water as listed in the feeding plan
-            before drawing it up. If your pet has been offered food and eaten some but not all of it, draw the rest of it
-            up into a syringe (or the same amount of fresh food if it's looking dry or stale). If your pet has not eaten
-            anything at all since the last feed, you will need to draw up the full volume of food listed for this
-            meal.
-        </p>
-        <p>
-            Place the filled syringes into a jug of <strong>warm</strong> (not hot!) water until they reach body temperature. <strong>DO
-            NOT MICROWAVE</strong>, as this can create pockets of hot liquid that may scald your pet.
-        </p>
-        <h3>Administering the food</h3>
-        <p>
-            <ol>
-                <li>
-                    Pinch the feeding tube to prevent food from leaking out when you remove the cap. Attach an
-                    empty syringe to the feeding tube port, stop pinching, and gently draw back on the plunger. You
-                    should feel some resistance, and the plunger should return to its starting position when you let go
-                    of it. <strong>If this does not happen, it may mean the tube has become displaced. STOP immediately, and
-                    contact the clinic for advice.</strong>
-                </li>
-                <li>
-                    <strong>Slowly</strong> flush the feeding tube with water before administering any food.
-                    <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP immediately
+            <p>
+                You are free to adjust the times at which you feed your pet to suit you, but please spread them out as
+                much as possible and allow a minimum of one hour between feeds to avoid overloading the stomach and
+                causing regurgitation.
+            </p>
+            <p>
+                Unless advised otherwise by your clinic, fresh water should remain available at all times and you
+                should leave the calculated volume of food in your pet's normal bowl between feeds to allow the
+                opportunity to eat unassisted. If it has all been eaten by the time of their next scheduled feed, offer
+                a fresh bowl of food instead of tube feeding. Otherwise, draw up any remaining uneaten food into
+                a syringe (or the same volume of fresh food if it's looking dry or stale). This is the volume of food
+                you will need to administer to your pet this session.
+            </p>
+            <h3>Preparing the food</h3>
+            <p>
+                Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has not
+                been drinking anything, you will also need to mix in additional water as listed in the feeding plan
+                before drawing it up. If your pet has been offered food and eaten some but not all of it, draw the rest of it
+                up into a syringe (or the same amount of fresh food if it's looking dry or stale). If your pet has not eaten
+                anything at all since the last feed, you will need to draw up the full volume of food listed for this
+                meal.
+            </p>
+            <p>
+                Place the filled syringes into a jug of <strong>warm</strong> (not hot!) water until they reach body temperature.
+                <strong>DO NOT MICROWAVE</strong>, as this can create pockets of hot liquid that may scald your pet.
+            </p>
+            <h3>Administering the food</h3>
+            <p>
+                <ol>
+                    <li>
+                        Pinch the feeding tube to prevent food from leaking out when you remove the cap. Attach an
+                        empty syringe to the feeding tube port, stop pinching, and gently draw back on the plunger. You
+                        should feel some resistance, and the plunger should return to its starting position when you let go
+                        of it. <strong>If this does not happen, it may mean the tube has become displaced. STOP immediately, and
+                        contact the clinic for advice.</strong>
+                    </li>
+                    <li>
+                        <strong>Slowly</strong> flush the feeding tube with water before administering any food.
+                        <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP immediately
                     and contact the clinic for advice.</strong>
-                </li>
-                <li>
-                    Slowly administer the prepared volume of food through the tube. You may notice your pet
-                    swallowing as you do this. This is normal, as the food is being administered into the oesophagus
-                    rather than directly into the stomach. If they regurgitate, slow down the rate of administration. <strong>If
-                    regurgitation continues, stop feeding and contact the clinic for advice.</strong>
-                </li>
-                <li>
-                    Slowly flush the tube with water again to clear it of any residual food.
-                </li>
-                <li>
-                    Place the cap back on the feeding tube and wipe away any food from the outside of the tube
-                    with a clean, damp cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
-                    the used syringes with water to clean them ready for the next feed.
-                </li>
-            </ol>
-        </p>
+                    </li>
+                    <li>
+                        Slowly administer the prepared volume of food through the tube. You may notice your pet
+                        swallowing as you do this. This is normal, as the food is being administered into the oesophagus
+                        rather than directly into the stomach. If they regurgitate, slow down the rate of administration.
+                        <strong>If regurgitation continues, stop feeding and contact the clinic for advice.</strong>
+                    </li>
+                    <li>
+                        Slowly flush the tube with water again to clear it of any residual food.
+                    </li>
+                    <li>
+                        Place the cap back on the feeding tube and wipe away any food from the outside of the tube
+                        with a clean, damp cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
+                        the used syringes with water to clean them ready for the next feed.
+                    </li>
+                </ol>
+            </p>
+            
+            <button class="btn btn-primary" @onclick="Reset">Reset</button>
+
+        </div>
     }
 
 </div>
