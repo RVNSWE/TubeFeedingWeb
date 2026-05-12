@@ -10,7 +10,7 @@ a, .btn-link {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
-    margin-top: 1.5em;
+    width: 100%;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -23,20 +23,36 @@ a, .btn-link {
 
 .tool-container {
     display: flex;
-    flex-flow: column wrap;
-    margin-bottom: 2em;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: center;
     align-items: center;
+    margin-top: 4rem;
+    margin-bottom: 2rem;
 }
 
 .flex-item {
-    padding: 0.5em;
+    height: 4.5rem;
+    width: 35rem;
+    box-sizing: border-box;
+    padding: 16px;
+}
+
+.radio-option {
+    margin-right: 2rem;
 }
 
 h3 {
     text-align: center;
     margin-top: 1.5em;
     margin-bottom: 1em;
+    font-weight: bold;
+}
+
+h4 {
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+    font-weight: bold;
 }
 
 h1:focus {
