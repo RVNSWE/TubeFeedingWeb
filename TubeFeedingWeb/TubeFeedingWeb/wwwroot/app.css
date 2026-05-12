@@ -1,5 +1,9 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: Calibri, Verdana, Geneva, Tahoma, sans-serif;
+}
+
+p {
+    font-size: 20px;
 }
 
 a, .btn-link {
@@ -11,6 +15,7 @@ a, .btn-link {
     background-color: #1b6ec2;
     border-color: #1861ac;
     width: 100%;
+    margin-bottom: 2rem;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -25,6 +30,16 @@ a, .btn-link {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.centred-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
     align-content: center;
     align-items: center;
     margin-top: 4rem;
@@ -42,17 +57,46 @@ a, .btn-link {
     margin-right: 2rem;
 }
 
-h3 {
+.centre-text {
     text-align: center;
-    margin-top: 1.5em;
-    margin-bottom: 1em;
+}
+
+section {
+    box-sizing: border-box;
+    height: 15em;
+    width: 20rem;
+    margin: 0.5rem;
+    padding: 16px;
+    font-size: 20px;
+    background-color: rgb(167, 216, 208);
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
     font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+h3 {
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 h4 {
-    margin-top: 1.5em;
-    margin-bottom: 1em;
     font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+#tools-subheading {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 2em;
 }
 
 h1:focus {

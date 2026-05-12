@@ -1,7 +1,7 @@
 ﻿@page "/calculator"
 @rendermode InteractiveServer
 
-<PageTitle>Calculator</PageTitle>
+<PageTitle>Tube Feeding Calculator</PageTitle>
 
 <div class="main">
 
@@ -61,6 +61,30 @@
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
         </EditForm>
+        <hr />
+        <h4>Cautions and Disclaimers</h4>
+        <p>
+            This started out as an app I built for myself after a particularly traumatising afternoon trying to close down theatre
+            and prep after an emergency surgery, work out nutrition calculations and a schedule for a 3 day re-feeding
+            plan, throw together an instruction and information handout from scratch, recover the patient and call their owner to
+            come get them, demonstrate and talk through all the tube feeding and post op instructions, and then clean up
+            the remaining carnage so I could go collapse on my sofa and binge watch sad animes until someone fed me.
+        </p>
+        <p>
+            I'm sure there was a time in my career when I'd have thrived on this, but I am way past those days
+            now. I just want an easy life with minimal possible maths, where we have written protocols and pre-made
+            information handouts for every occasion.
+        </p>
+        <p>
+            This tool is my answer to the tube feeding part of that problem, but it comes with caveats.
+        </p>
+        <p>
+            I am not responsible for anything you do with the information it outputs. You alone, as the professional treating
+            your patient, are responsible for ensuring your patient receives the right nutrition, fluids and care. I've meticulously
+            thought through and tested this tool to the best of my ability, but I am not a nutrition expert, I made this tool
+            specifically because I despise doing maths, and I will never be able to 100% guarantee at any given time that no one else
+            has tampered with it without me knowing, since this is, after all, the internet.
+        </p>
     }
     else if (calculated)
     {
@@ -91,6 +115,7 @@
                     <br />
                 </div>
             }
+            <br />
 
             <p>
                 <strong>It is vital you follow the above feeding plan in order to prevent refeeding syndrome.</strong> Refeeding
@@ -111,6 +136,7 @@
                 you will need to administer to your pet this session.
             </p>
             <br />
+
             <h4>Preparing the food</h4>
             <p>
                 Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has not
@@ -125,6 +151,7 @@
                 <strong>DO NOT MICROWAVE</strong>, as this can create pockets of hot liquid that may scald your pet.
             </p>
             <br />
+
             <h4>Administering the food</h4>
             <p>
                 <ol>

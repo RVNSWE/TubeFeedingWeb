@@ -11,10 +11,10 @@ namespace TubeFeedingWeb
         public double BodyWeight { get; set; } // (kg)
         [Range(1, 10, ErrorMessage = "Please enter a whole number from 1 to 10.")]
         public int Days { get; set; } = 3;
-        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Only alphanumeric characters are permitted (a-z and 0-9)."),
+        [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Only alphanumeric characters are permitted (a-z and 0-9)."),
             MaxLength(100, ErrorMessage = "Length cannot exceed 100 characters.")]
         public string? PatientName { get; set; } = string.Empty;
-        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Only alphanumeric characters are permitted (a-z and 0-9)."),
+        [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Only alphanumeric characters are permitted (a-z and 0-9)."),
             MaxLength(100, ErrorMessage = "Length cannot exceed 100 characters.")]
         public string? DietName { get; set; } = string.Empty;
         [Required(ErrorMessage = "Please enter the kcal per gram (or per millilitre) of the diet to be fed."),
