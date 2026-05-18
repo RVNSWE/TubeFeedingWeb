@@ -5,7 +5,18 @@
      */
     public class Volumes
     {
+        private const double MAX_ML_PER_KG_LOW_RER = 10.0;
+        private const double MAX_ML_PER_KG_MID_RER = 15.0;
+        private const double MAX_ML_PER_KG_FULL_RER = 20.0;
+        public double MaxMlPerKg { get; set; }
+        public double MaxVolumePerMeal { get; set; }
+        public double DayMultiplier { get; set; }
+        public double RER { get; set; }
+        public double FoodPerDay { get; set; }
         public double ContainersPerDay { get; set; }
+        public double DietWaterVolume { get; set; }
+        public double WaterPerDay { get; set; }
+        public double TotalVolumePerDay { get; set; }
         public int MealsPerDay { get; set; }
         public double TotalVolumePerMeal { get; set; }
         public double FoodPerMeal { get; set; }
@@ -13,7 +24,6 @@
         public int Day { get; set; }
         public IReadOnlyCollection<string> FormattedFeedingTimes { get; set; }
 
-        private double totalVolumePerDay;
         private double interval;
         private double mealHalfTime;
         private double midPoint;
@@ -26,25 +36,25 @@
             data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
+            GetMaxMlPerKg();
         }
 
         public void Calculate()
         {
-            double maxVolumePerMeal = GetMaxVolumePerMeal();
-            double dayMultiplier = data.FractionRER * Day; // Fraction of RER to feed on this day
-            double rER = GetRER(dayMultiplier); // Resting energy requirement (kcal)
-            double foodPerDay = rER / data.KcalPerG; // Total food per day (g)
-            ContainersPerDay = foodPerDay / data.DietNetWeight; // Estimated containers of food used up per day
-            double dietWaterVolume = foodPerDay * (data.DietWaterPercentage / 100); // Volume of water contained in food (ml)
-            double waterPerDay = CalculateWaterPerDay() - dietWaterVolume; // Additional water needed per day (ml)
-            totalVolumePerDay = foodPerDay + waterPerDay; // Estimated total volume administered per day (ml)
-            MealsPerDay = (int)Math.Round(totalVolumePerDay / maxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Number of meals per day
-            TotalVolumePerMeal = totalVolumePerDay / MealsPerDay; // Estimated total volume administered per meal (ml)
+            MaxVolumePerMeal = data.BodyWeight * MaxMlPerKg;
+            RER = GetRER(); // Resting energy requirement (kcal)
+            FoodPerDay = RER / data.KcalPerG; // Total food per day (g)
+            ContainersPerDay = FoodPerDay / data.DietNetWeight; // Estimated containers of food used up per day
+            DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // Volume of water contained in food (ml)
+            WaterPerDay = CalculateWaterPerDay() - DietWaterVolume; // Additional water needed per day (ml)
+            TotalVolumePerDay = FoodPerDay + WaterPerDay; // Estimated total volume administered per day (ml)
+            MealsPerDay = (int)Math.Round(TotalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Number of meals per day
+            TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // Estimated total volume administered per meal (ml)
 
-            while (TotalVolumePerMeal > maxVolumePerMeal) // While the volume administered per meal exceeds the max allowable volume
+            while (TotalVolumePerMeal > MaxVolumePerMeal) // While the volume administered per meal exceeds the max allowable volume
             {
                 MealsPerDay++; // Add another meal per day
-                TotalVolumePerMeal = totalVolumePerDay / MealsPerDay; // Recalculate the volume per meal
+                TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // Recalculate the volume per meal
 
                 if (MealsPerDay > 23)
                 {
@@ -52,8 +62,8 @@
                 }
             }
 
-            FoodPerMeal = foodPerDay / MealsPerDay; // Food to administer per meal (g)
-            WaterPerMeal = (waterPerDay / MealsPerDay) - (data.FlushVolume * 2); // Extra water needed per meal (ml)
+            FoodPerMeal = FoodPerDay / MealsPerDay; // Food to administer per meal (g)
+            WaterPerMeal = (WaterPerDay / MealsPerDay) - (data.FlushVolume * 2); // Extra water needed per meal (ml)
 
             if (WaterPerMeal < 0)
             {
@@ -85,40 +95,36 @@
          * If on re-feeding plan, start at 10ml/kg/meal, then 15ml/kg/meal once halfway to full RER,
          * then 20ml/kg/meal once on full RER.
          */
-        private double GetMaxVolumePerMeal()
+        private void GetMaxMlPerKg()
         {
-            double maxVolumePerMeal;
-
             if (Day < data.Days * 0.5)
             {
-                maxVolumePerMeal = data.BodyWeight * 10.0;
+                MaxMlPerKg = MAX_ML_PER_KG_LOW_RER;
             }
             else if (Day < data.Days)
             {
-                maxVolumePerMeal = data.BodyWeight * 15.0;
+                MaxMlPerKg = MAX_ML_PER_KG_MID_RER;
             }
             else
             {
-                maxVolumePerMeal = data.BodyWeight * 20.0;
+                MaxMlPerKg = MAX_ML_PER_KG_FULL_RER;
             }
-
-            return maxVolumePerMeal;
         }
 
         /*
          * Get RER for current day of re-feeding plan.
          */
-        private double GetRER(double dayMultiplier)
+        private double GetRER()
         {
             double rER;
 
             if (Day < data.Days)
             {
-                rER = 70 * Math.Pow(data.BodyWeight, 0.75) * dayMultiplier;
+                rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
             }
             else
             {
-                rER = 70 * Math.Pow(data.BodyWeight, 0.75);
+                rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
             }    
 
             return rER;

@@ -7,6 +7,23 @@
 
     @if (!calculated)
     {
+        <p class="centre-text">
+            <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
+        </p>
+        <p>
+            I am not a nutritionist, I can't guarantee that the numbers or information produced by this tool will be
+            correct or accurate, and I am not clinically, professionally or personally responsible for anything it may be
+            used for. Veterinary professionals remain fully responsible for checking and verifying all information and
+            calculations for themselves.
+        </p>
+        <p>
+            Once you hit calculate, the tool will work out how much food and water to administer with each meal, how many
+            meals will be needed per day, and a rough schedule for when to feed. It will then generate a basic client
+            information handout, which you are free to adapt however you like. I have also added a step-by-step breakdown
+            of calculations, including nutrition and fluid formulae, which you will find at the very bottom of the page.
+        </p>
+        <br />
+        <hr />
         <h3>Calculate Feeding Volumes</h3>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
@@ -22,16 +39,11 @@
                     </InputRadioGroup>
                 </label>
                 <label class="flex-item">
-                    <strong>Body weight:</strong><br />
+                    <strong>Patient body weight:</strong><br />
                     <InputNumber @bind-Value="data.BodyWeight" min="0" max="200" />
                     kg
                 </label>
                 <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
-                <label class="flex-item">
-                    <strong>Patient name:</strong><br />
-                    <InputText @bind-Value=data.PatientName />
-                </label>
-                <ValidationMessage For="@(() => data.PatientName)" />
                 <label class="flex-item">
                     <strong>Name of diet to be fed:</strong><br />
                     <InputText @bind-Value=data.DietName />
@@ -61,36 +73,10 @@
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
         </EditForm>
-        <hr />
-        <h4>Cautions and Disclaimers</h4>
-        <p>
-            This started out as an app I built for myself after a particularly traumatising afternoon trying to close down theatre
-            and prep after an emergency surgery, work out nutrition calculations and a schedule for a 3 day re-feeding
-            plan, throw together an instruction and information handout from scratch, recover the patient and call their owner to
-            come get them, demonstrate and talk through all the tube feeding and post op instructions, and then clean up
-            the remaining carnage so I could go collapse on my sofa and binge watch sad animes until someone fed me.
-        </p>
-        <p>
-            I'm sure there was a time in my career when I'd have thrived on this, but I am way past those days
-            now. I just want an easy life with minimal possible maths, where we have written protocols and pre-made
-            information handouts for every occasion.
-        </p>
-        <p>
-            This tool is my answer to the tube feeding part of that problem, but it comes with caveats.
-        </p>
-        <p>
-            I am not responsible for anything you do with the information it outputs. You alone, as the professional treating
-            your patient, are responsible for ensuring your patient receives the right nutrition, fluids and care. I've meticulously
-            thought through and tested this tool to the best of my ability, but I am not a nutrition expert, I made this tool
-            specifically because I despise doing maths, and I will never be able to 100% guarantee at any given time that no one else
-            has tampered with it without me knowing, since this is, after all, the internet.
-        </p>
     }
     else if (calculated)
     {
-        <button class="btn btn-primary" @onclick="Reset">Reset</button>
-        <br />
-        <h3>Tube Feeding Instructions for @data.PatientName</h3>
+        <h3>Tube Feeding Instructions</h3>
             
         <div>
             <p>Diet: <strong>@data.DietName</strong></p>
@@ -143,7 +129,7 @@
                 been drinking anything, you will also need to mix in additional water as listed in the feeding plan
                 before drawing it up. If your pet has been offered food and eaten some but not all of it, draw the rest of it
                 up into a syringe (or the same amount of fresh food if it's looking dry or stale). If your pet has not eaten
-                anything at all since the last feed, you will need to draw up the full volume of food listed for this
+                anything at all since the last feed, you will need to prepare the full volume of food listed for this
                 meal.
             </p>
             <p>
@@ -184,6 +170,52 @@
                 </ol>
             </p>
         </div>
+        <br />
+        <hr />
+        <br />
+
+    <button class="btn btn-primary" @onclick="Reset">Reset</button>
+        
+    <h4>Calculations</h4>
+    <ul>
+        <li>
+            <strong>Maximum ml per kg per meal</strong> =
+            @foreach (Volumes meal in calculatedVolumes)
+            {
+                <span><br />@meal.MaxMlPerKg ml on day @meal.Day</span>
+            }
+        </li>
+
+        <li><strong>RER (kcal)</strong> = 70 x body weight (kg) ^0.75</li>
+        <li><strong>Kcal needed for day (if on reduced RER)</strong> = RER / number of days x current day number</li>
+        <li><strong>Food per day (g)</strong> = kcal for day / kcal per g of food (or RER / kcal per g of food)</li>
+        <li><strong>Water content of food per day (ml)</strong> = food per day (g) x (percentage water content of food / 100)</li>
+        @if (data.Species == "Cat")
+        {
+            <li><strong>Additional water needed per day (ml)</strong> = (80 x body weight (kg) ^0.75) - water content of food (ml)</li>
+        }
+        else
+        {
+            <li><strong>Additional water needed per day (ml)</strong> = (132 x body weight (kg) ^0.75) - water content of food (ml)</li>
+        }
+        <li><strong>Total volume being administered per day (ml)</strong> = food per day (g) + additional water per day (ml)</li>
+        <li><strong>Number of meals per day (rounded to the nearest whole number)</strong> = total volume per day (ml) / maximum volume per meal (ml)</li>
+        <li><strong>Total volume per meal (ml)</strong> = total volume per day (ml) / meals per day</li>
+        <li><strong>If total volume per meal somehow exceeds the maximum at this point, meals per day are increased until it doesn't.</strong></li>
+        <li><strong>Food per meal (g)</strong> = food per day (g) / meals per day</li>
+        <li><strong>Water to add per meal (ml)</strong> = (water per day (ml) / meals per day) - (volume of flush (ml) x 2)</li>
+        <li><strong>Containers of food used today</strong> = total food today (g) / net weight of food per container (g)</li>
+    </ul>
+    <br />
+    <h4>Additional information</h4>
+    <p>
+        This tool is not designed to cover every usecase, or even every type of feeding tube. It was only designed to help with the
+        initial stages of working out baseline requirements and putting information and instructions together for the client, which
+        is almost always an unexpected and significantly time consuming new task added to an already full work schedule.
+    </p>
+    <p>
+
+    </p>
     }
 
 </div>
@@ -201,8 +233,6 @@
         calculating = true;
 
         var model = editContext.Model as PatientDietData;
-
-        data.FractionRER = 1.0 / (double)data.Days; // Calculate the initial fraction of RER to meet
 
         data.FlushVolume = data.BodyWeight switch
         {

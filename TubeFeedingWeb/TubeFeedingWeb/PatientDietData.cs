@@ -13,9 +13,6 @@ namespace TubeFeedingWeb
         public int Days { get; set; } = 3;
         [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Only alphanumeric characters are permitted (a-z and 0-9)."),
             MaxLength(100, ErrorMessage = "Length cannot exceed 100 characters.")]
-        public string? PatientName { get; set; } = string.Empty;
-        [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Only alphanumeric characters are permitted (a-z and 0-9)."),
-            MaxLength(100, ErrorMessage = "Length cannot exceed 100 characters.")]
         public string? DietName { get; set; } = string.Empty;
         [Required(ErrorMessage = "Please enter the kcal per gram (or per millilitre) of the diet to be fed."),
             Range(0.1, 10, ErrorMessage = "Must be kcal/g or kcal/ml.")]
@@ -26,7 +23,6 @@ namespace TubeFeedingWeb
         [Required(ErrorMessage = "Please enter the percentage moisture content of the diet."),
             Range(1,99, ErrorMessage = "Only numbers from 1 - 99 are valid. If using a powdered food, please enter the percentage moisture content after reconstitution.")]
         public double DietWaterPercentage { get; set; }
-        public double FractionRER { get; set; }
         public double FlushVolume { get; set; }
     }
 }
