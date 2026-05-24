@@ -63,12 +63,13 @@ a, .btn-link {
 
 section {
     box-sizing: border-box;
-    height: 8em;
-    width: 10rem;
+    border-radius: 25px;
+    height: 15em;
+    width: 18rem;
     margin: 0.5rem;
     padding: 16px;
     font-size: 20px;
-    background-color: rgb(167, 216, 208);
+    background-color: #baeadc;
     text-align: center;
 }
 
