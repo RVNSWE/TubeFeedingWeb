@@ -11,16 +11,16 @@
             <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
         </p>
         <p>
-            I am not a nutritionist, I can't guarantee that the numbers or information produced by this tool will be
-            correct or accurate, and I am not clinically, professionally or personally responsible for anything it may be
-            used for. Veterinary professionals remain fully responsible for checking and verifying all information and
-            calculations for themselves.
+            You remain responsible for personally checking and verifying all information, calculations and numbers used in
+            the care of your patients. If you are not a registered  veterinary professional then do not attempt to use this
+            tool, and instead contact your veterinary clinic for advice.
         </p>
         <p>
             Once you hit calculate, the tool will work out how much food and water to administer with each meal, how many
             meals will be needed per day, and a rough schedule for when to feed. It will then generate a basic client
-            information handout, which you are free to adapt however you like. I have also added a step-by-step breakdown
-            of calculations, including nutrition and fluid formulae, which you will find at the very bottom of the page.
+            information handout, which you are free to use and adapt however you like. I have also added a step-by-step
+            breakdown showing how everything is calculated, including the nutrition and fluid formulae used, which you will
+            find at the very bottom of the page.
         </p>
         <br />
         <hr />
@@ -171,12 +171,21 @@
             </p>
         </div>
         <br />
-        <hr />
-        <br />
 
     <button class="btn btn-primary" @onclick="Reset">Reset</button>
-        
-    <h4>Calculations</h4>
+
+        <hr />
+    <h3>Calculations</h3>
+
+    <div class="centred-container">
+        <p class="flex-item">Species: <strong>@data.Species</strong></p>
+        <p class="flex-item">Body weight: <strong>@data.BodyWeight kg</strong></p>
+        <p class="flex-item">Diet energy content: <strong>@data.KcalPerG kcal/g</strong></p>
+        <p class="flex-item">Food per container: <strong>@data.DietNetWeight g</strong></p>
+        <p class="flex-item">Diet moisture content: <strong>@data.DietWaterPercentage %</strong></p>
+        <p class="flex-item">Number of days to increase feeds over: <strong>@data.Days</strong></p>
+    </div>
+
     <ul>
         <li>
             <strong>Maximum ml per kg per meal</strong> =
@@ -187,8 +196,8 @@
         </li>
 
         <li><strong>RER (kcal)</strong> = 70 x body weight (kg) ^0.75</li>
-        <li><strong>Kcal needed for day (if on reduced RER)</strong> = RER / number of days x current day number</li>
-        <li><strong>Food per day (g)</strong> = kcal for day / kcal per g of food (or RER / kcal per g of food)</li>
+        <li><strong>Kcal needed for day (if on reduced RER)</strong> = RER / number of days x current day number (eg. on day 2 out of 3 this would be RER / 3 x 2)</li>
+        <li><strong>Food per day (g)</strong> = kcal for day / kcal per g of food (or full RER / kcal per g of food)</li>
         <li><strong>Water content of food per day (ml)</strong> = food per day (g) x (percentage water content of food / 100)</li>
         @if (data.Species == "Cat")
         {
@@ -201,21 +210,11 @@
         <li><strong>Total volume being administered per day (ml)</strong> = food per day (g) + additional water per day (ml)</li>
         <li><strong>Number of meals per day (rounded to the nearest whole number)</strong> = total volume per day (ml) / maximum volume per meal (ml)</li>
         <li><strong>Total volume per meal (ml)</strong> = total volume per day (ml) / meals per day</li>
-        <li><strong>If total volume per meal somehow exceeds the maximum at this point, meals per day are increased until it doesn't.</strong></li>
+        <li><strong>If total volume per meal exceeds the maximum at this point, meals per day are increased until it doesn't.</strong></li>
         <li><strong>Food per meal (g)</strong> = food per day (g) / meals per day</li>
         <li><strong>Water to add per meal (ml)</strong> = (water per day (ml) / meals per day) - (volume of flush (ml) x 2)</li>
         <li><strong>Containers of food used today</strong> = total food today (g) / net weight of food per container (g)</li>
     </ul>
-    <br />
-    <h4>Additional information</h4>
-    <p>
-        This tool is not designed to cover every usecase, or even every type of feeding tube. It was only designed to help with the
-        initial stages of working out baseline requirements and putting information and instructions together for the client, which
-        is almost always an unexpected and significantly time consuming new task added to an already full work schedule.
-    </p>
-    <p>
-
-    </p>
     }
 
 </div>
