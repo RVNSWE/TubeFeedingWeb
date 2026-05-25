@@ -4,13 +4,124 @@
 <PageTitle>Weight Clinic Targets</PageTitle>
 
 <div class="main">
-    <h3>Weight Clinic Targets</h3>
 
-    <p>
+    @if (!calculated)
+    {
+        <p class="centre-text">
+            <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
+        </p>
+        <p>
+            <strong>Please remember that you remain fully responsible for personally checking and verifying all information,
+            calculations and numbers you use in the care of your patients.</strong> If you are NOT a registered veterinary
+            professional, please close this page and seek advice from your veterinary clinic.
+        </p>
+        <br />
+        <hr />
 
-    </p>
+        <h3>Weight Clinic Targets</h3>
+
+        <EditForm Model="@data" OnValidSubmit=@ProcessData>
+            <div class="tool-container">
+                <DataAnnotationsValidator />
+                <label class="flex-item">
+                    <strong>BCS out of 9:</strong><br />
+                    <InputNumber @bind-Value=data.BCS min="6" max="9" />
+                </label>
+                <ValidationMessage For="@(() => data.BCS)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Current body weight (kg):</strong><br />
+                    <InputNumber @bind-Value="data.CurrentBodyWeight" min="0" max="200" /> kg
+                </label>
+                <ValidationMessage For="@(() => data.CurrentBodyWeight)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Body weight at last weight check (kg):</strong><br />
+                    <InputNumber @bind-Value="data.LastBodyWeight" min="0" max="200" /> kg
+                </label>
+                <ValidationMessage For="@(() => data.LastBodyWeight)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Number of weeks since last weight check:</strong><br />
+                    <InputNumber @bind-Value=data.WeeksSinceLastWeighed min="0.1" max="52" />
+                </label>
+                <ValidationMessage For="@(() => data.WeeksSinceLastWeighed)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Number of weeks until next weight check:</strong><br />
+                    <InputNumber @bind-Value=data.WeeksUntilNextWeighed min="0.1" max="52" />
+                </label>
+                <ValidationMessage For="@(() => data.WeeksUntilNextWeighed)" class="flex-item" />
+            </div>
+            <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
+        </EditForm>
+    }
+    else if (calculated)
+    {
+        <h3>Weight Clinic Targets</h3>
+
+        <div class="tool-container">
+            <p class="flex-item">Percentage weight lost per week: <strong>@results.WeeklyPercentWeightLost %</strong></p>
+            <p class="flex-item">Target for next time: <strong>@results.NextTargetWeight kg</strong></p>
+            <p class="flex-item">Estimated ideal body weight (BCS 5/9): <strong>@results.IdealWeight kg</strong></p>
+        </div>
+
+        <p>
+            Less than 0.5% body weight loss per week may indicate the current weight loss plan is not effective enough.
+            More than 1.5% per week could mean the patient's nutritional needs are not being adequately met.
+        </p>
+        <p>
+            All of these calculations are just estimates, and the 'ideal' body weight may not be realistic for extremely overweight
+            patients.
+        </p>
+        <br />
+
+        <button class="btn btn-primary" @onclick="Reset">Reset</button>
+
+        <hr />
+        <h3>Calculations</h3>
+
+        <div class="tool-container">
+            <p class="flex-item">BCS: <strong>@data.BCS</strong></p>
+            <p class="flex-item">Current body weight: <strong>@data.CurrentBodyWeight kg</strong></p>
+            <p class="flex-item">Last body weight: <strong>@data.LastBodyWeight kg</strong></p>
+            <p class="flex-item">Weeks since last weighed: <strong>@data.WeeksSinceLastWeighed</strong></p>
+            <p class="flex-item">Weeks until next weighed: <strong>@data.WeeksUntilNextWeighed</strong></p>
+        </div>
+
+        <ul>
+            <li><strong>Weight (kg) lost since last time</strong> = last weight (kg) - current weight (kg)</li>
+            <li><strong>Percentage weight loss since last time</strong> = weight lost (kg) / last weight (kg) x 100</li>
+            <li><strong>Percentage weight loss per week since last time</strong> = % lost / weeks since last weighed</li>
+            <li><strong>1% of current bodyweight (the target amount to lose per week)</strong> = 0.01 x current weight (kg)</li>
+            <li><strong>Target amount (kg) to lose for next appointment</strong> = 1% of current weight (kg) x weeks until next weighed</li>
+            <li><strong>Target weight (kg) for next appointment</strong> = current weight (kg) - weight to lose (kg)</li>
+            <li><strong>Estimated ideal body weight (at BCS 5/9)</strong> = current weight (kg) / @results.WeightModifier</li>
+        </ul>
+    }
+
 </div>
 
 @code {
+    WeightClinicData data = new();
+    WeightCalculations results = new();
 
+    bool calculating = false;
+    bool calculated = false;
+
+    private async Task ProcessData(EditContext editContext)
+    {
+        calculating = true;
+
+        var model = editContext.Model as WeightClinicData;
+
+        results = new();
+        results.UpdateData(data);
+        results.Calculate();
+
+        calculating = false;
+        calculated = true;
+    }
+
+    private void Reset()
+    {
+        calculated = false;
+        data = new();
+    }
 }
