@@ -11,10 +11,8 @@
             <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
         </p>
         <p>
-            <strong>
-                Please remember that you remain fully responsible for personally checking and verifying all information,
-                calculations and numbers you use in the care of your patients.
-            </strong> If you are NOT a registered veterinary
+            <strong>Please remember that you remain fully responsible for personally checking and verifying all information,
+            calculations and numbers you use in the care of your patients.</strong> If you are NOT a registered veterinary
             professional, please close this page and seek advice from your veterinary clinic.
         </p>
         <br />
@@ -31,7 +29,7 @@
                 </label>
                 <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
                 <label class="flex-item">
-                    <strong>Body weight at last weight check (kg):</strong><br />
+                    <strong>:</strong><br />
                     <InputNumber @bind-Value="data.LastBodyWeight" min="0" max="200" /> kg
                 </label>
                 <ValidationMessage For="@(() => data.LastBodyWeight)" class="flex-item" />
