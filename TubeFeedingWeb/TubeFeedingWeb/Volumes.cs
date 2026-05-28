@@ -5,9 +5,9 @@
      */
     public class Volumes
     {
-        private const double MAX_ML_PER_KG_LOW_RER = 10.0;
-        private const double MAX_ML_PER_KG_MID_RER = 15.0;
-        private const double MAX_ML_PER_KG_FULL_RER = 20.0;
+        private const double MAX_ML_PER_KG_LOW_RER = 5.0;
+        private const double MAX_ML_PER_KG_MID_RER = 7.5;
+        private const double MAX_ML_PER_KG_FULL_RER = 10.0;
         public double MaxMlPerKg { get; set; }
         public double MaxVolumePerMeal { get; set; }
         public double DayMultiplier { get; set; }

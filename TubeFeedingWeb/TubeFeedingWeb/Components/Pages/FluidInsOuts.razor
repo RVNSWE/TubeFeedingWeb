@@ -29,20 +29,55 @@
                 </label>
                 <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
                 <label class="flex-item">
-                    <strong>:</strong><br />
-                    <InputNumber @bind-Value="data.LastBodyWeight" min="0" max="200" /> kg
+                    <strong>Duration of monitoring period (hours):</strong><br />
+                    <InputNumber @bind-Value="data.MonitoringDuration" min="0" max="72" />
                 </label>
-                <ValidationMessage For="@(() => data.LastBodyWeight)" class="flex-item" />
+                <ValidationMessage For="@(() => data.MonitoringDuration)" class="flex-item" />
                 <label class="flex-item">
-                    <strong>Number of weeks since last weight check:</strong><br />
-                    <InputNumber @bind-Value=data.WeeksSinceLastWeighed min="0.1" max="52" />
+                    <strong>IVFT rate (ml/kg/hr):</strong><br />
+                    <InputNumber @bind-Value=data.IVFT min="0" max="100000" />
                 </label>
-                <ValidationMessage For="@(() => data.WeeksSinceLastWeighed)" class="flex-item" />
+                <ValidationMessage For="@(() => data.IVFT)" class="flex-item" />
                 <label class="flex-item">
-                    <strong>Number of weeks until next weight check:</strong><br />
-                    <InputNumber @bind-Value=data.WeeksUntilNextWeighed min="0.1" max="52" />
+                    <strong>Oral water intake (ml):</strong><br />
+                    <InputNumber @bind-Value=data.OralWater min="0" max="100000" />
                 </label>
-                <ValidationMessage For="@(() => data.WeeksUntilNextWeighed)" class="flex-item" />
+                <ValidationMessage For="@(() => data.OralWater)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Water intake (ml) from other sources (eg. flush, CRIs, liquid treats):</strong><br />
+                    <InputNumber @bind-Value=data.OtherWater min="0" max="100000" />
+                </label>
+                <ValidationMessage For="@(() => data.OtherWater)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Moisture content of diet being fed (%):</strong><br />
+                    <InputNumber @bind-Value=data.FoodMoistureContent min="0.1" max="99.9" />
+                </label>
+                <ValidationMessage For="@(() => data.FoodMoistureContent)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Volume of food eaten (g):</strong><br />
+                    <InputNumber @bind-Value=data.AmountEaten min="0" max="100000" />
+                </label>
+                <ValidationMessage For="@(() => data.AmountEaten)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Urine output (ml):</strong><br />
+                    <InputNumber @bind-Value=data.Urine min="0" max="100000" />
+                </label>
+                <ValidationMessage For="@(() => data.Urine)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Other fluid output (ml) (eg. thoracocentesis, hypersalivation, heavy wound exudate):</strong><br />
+                    <InputNumber @bind-Value=data.OtherOutput min="0" max="100000" />
+                </label>
+                <ValidationMessage For="@(() => data.OtherOutput)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Number of incidences of diarrhoea (estimated at 4ml/kg per incidence):</strong><br />
+                    <InputNumber @bind-Value=data.Diarrhoea min="0" max="1000" />
+                </label>
+                <ValidationMessage For="@(() => data.Diarrhoea)" class="flex-item" />
+                <label class="flex-item">
+                    <strong>Number of incidences of vomiting (estimated at 4ml/kg per incidence):</strong><br />
+                    <InputNumber @bind-Value=data.Vomiting min="0" max="1000" />
+                </label>
+                <ValidationMessage For="@(() => data.Vomiting)" class="flex-item" />
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
         </EditForm>
