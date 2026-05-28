@@ -92,8 +92,19 @@
         }
 
         /*
-         * If on re-feeding plan, start at 10ml/kg/meal, then 15ml/kg/meal once halfway to full RER,
-         * then 20ml/kg/meal once on full RER.
+         * If on re-feeding plan, start at 5ml/kg/meal, then 7.5ml/kg/meal once halfway to full RER,
+         * then 10ml/kg/meal once on full RER.
+         * 
+         * Sources vary massively on maximum volume per feed and there's no apparent consensus, so
+         * conservative values were chosen to minimise the risk of overload. Some sources suggest even
+         * smaller volumes of 1-2 ml/kg/meal, but this would make it impossible to meet the patient's
+         * RER in many cases even with hourly feeds 24 hours/day, hence starting at 5ml/kg/meal.
+         * 
+         * Max ml/kg/meal could be made adjustable to give clinicians more autonomy, but this would
+         * add complexity and the tool was built to reduce cognitive and time burdens on clinicians,
+         * not add more things to think about. Clinicians who want a higher level of control are also
+         * less likely to be using this app, so on balance it was considered better and more helpful
+         * to hard code the volumes in.
          */
         private void GetMaxMlPerKg()
         {
