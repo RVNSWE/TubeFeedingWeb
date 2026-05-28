@@ -87,7 +87,7 @@
         <h3>Fluid Intake to Output Ratio</h3>
 
         <div class="tool-container">
-            <p class="flex-item">Percentage weight lost per week: <strong>@results.WeeklyPercentWeightLost %</strong></p>
+            <p class="flex-item">Percentage: <strong>@results.DifferencePercent %</strong></p>
         </div>
         <br />
 
@@ -117,7 +117,7 @@
 
 @code {
     FluidData data = new();
-    WeightCalculations results = new();
+    FluidIntakeOutputCalculations results = new();
 
     bool calculating = false;
     bool calculated = false;
@@ -129,6 +129,7 @@
         var model = editContext.Model as FluidData;
 
         results = new();
+        results.UpdateData(data);
         results.Calculate();
 
         calculating = false;
