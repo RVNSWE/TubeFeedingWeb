@@ -1,4 +1,3 @@
-using TubeFeedingWeb.Client.Pages;
 using TubeFeedingWeb.Components;
 
 var builder = WebApplication.CreateBuilder(args);

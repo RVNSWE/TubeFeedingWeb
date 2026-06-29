@@ -129,14 +129,16 @@
         {
             double rER;
 
-            if (Day < data.Days)
+            rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
+
+            /*if (Day < data.Days)
             {
                 rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
             }
             else
             {
                 rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
-            }    
+            }*/
 
             return rER;
         }
