@@ -7,25 +7,22 @@
 
     @if (!calculated)
     {
-        <p class="centre-text">
-            <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
-        </p>
-        <p>
-            <strong>Please remember that you remain fully responsible for personally checking and verifying all information,
-            calculations and numbers you use in the care of your patients.</strong> If you are NOT a registered veterinary
-            professional, please close this page and seek advice from your veterinary clinic.
-        </p>
-        <p>
-            Once you hit calculate, the tool will work out how much food and water to administer with each meal, how many
-            meals will be needed per day, and a rough schedule for when to feed. It will then provide a basic client
-            information handout, which you are free to use and adapt however you like. I have added a step-by-step breakdown
-            showing how everything is calculated, including the nutrition and fluid formulae used, which you will find at
-            the very bottom of the page along with the information you will enter here.
-        </p>
-        <br />
-        <hr />
-
         <h3>Calculate Feeding Volumes</h3>
+
+        <p class="centre-text">
+            <strong>These tools are intended for use by registered veterinary professionals ONLY.</strong>
+        </p>
+        <p>
+            This tool will calculate the volume of food and water to give per meal and the number of meals needed per day,
+            and will generate a suggested feeding schedule based on this. Underneath, it will also provide a basic generic
+            client information handout, which you are free to use and adapt however you like. The full calculation workings
+            will be shown at the bottom of the page, for transparency and to make it easier for you to verify the output.
+        </p>
+        <p>
+            <strong>Although I've done my best to make it accurate, appropriate and safe, I can't guarantee it will always
+            stay up to date with current evidence or that I won't overlook anything or make mistakes, so you remain fully
+            responsible for personally verifying any output you choose to use on real patients.</strong>
+        </p>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
             <div class="tool-container">
@@ -35,37 +32,63 @@
                     <InputRadioGroup Name="species" @bind-Value=data.Species>
                         @foreach (string species in speciesSelection)
                         {
-                            <label class="radio-option">@species<InputRadio Name="species" Value="@species" /></label>
+                            <label class="radio-option">@species <InputRadio Name="species" Value="@species" /></label>
                         }
                     </InputRadioGroup>
                 </label>
+
                 <label class="flex-item">
                     <strong>Patient body weight:</strong><br />
                     <InputNumber @bind-Value="data.BodyWeight" min="0" max="200" />
                     kg
                 </label>
                 <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
+
                 <label class="flex-item">
                     <strong>Name of diet to be fed:</strong><br />
                     <InputText @bind-Value=data.DietName />
                 </label>
                 <ValidationMessage For="@(() => data.DietName)" class="flex-item" />
+
                 <label class="flex-item">
                     <strong>Kcal per gram:</strong><br />
                     <InputNumber @bind-Value=data.KcalPerG min="0" max="10" />
                 </label>
                 <ValidationMessage For="@(() => data.KcalPerG)" class="flex-item" />
+
                 <label class="flex-item">
                     <strong>Net weight per container (g or ml):</strong><br />
                     <InputNumber @bind-Value=data.DietNetWeight min="0" max="1000" />
                 </label>
                 <ValidationMessage For="@(() => data.DietNetWeight)" class="flex-item" />
+
                 <label class="flex-item">
                     <strong>Moisture content (%):</strong><br />
                     <InputNumber @bind-Value=data.DietWaterPercentage min="0" max="100" />
                     %
                 </label>
                 <ValidationMessage For="@(() => data.DietWaterPercentage)" class="flex-item" />
+
+                <label class="flex-item">
+                    <strong>Minimum volume per meal (ml/kg):</strong><br />
+                    <InputRadioGroup Name="minSize" @bind-Value=data.MinMealSize>
+                        @foreach (double size in minMealSize)
+                        {
+                            <label class="radio-option">@size ml <InputRadio Name="minSize" Value="@size" /></label>
+                        }
+                    </InputRadioGroup>
+                </label>
+
+                <label class="flex-item">
+                    <strong>Maximum volume per meal (ml/kg):</strong><br />
+                    <InputRadioGroup Name="maxSize" @bind-Value=data.MaxMealSize>
+                        @foreach (double size in maxMealSize)
+                        {
+                            <label class="radio-option">@size ml <InputRadio Name="maxSize" Value="@size" /></label>
+                        }
+                    </InputRadioGroup>
+                </label>
+
                 <label class="flex-item">
                     <strong>Number of days to re-feed over (enter "1" if starting at full RER):</strong><br />
                     <InputNumber @bind-Value=data.Days min="1" max="10" />
@@ -93,7 +116,7 @@
                     <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
                     <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @ContainerText(meal)</strong></p>
                     <p>
-                        Example feeding time schedule: || 
+                        Example feeding schedule: || 
                         @foreach (string time in meal.FormattedFeedingTimes)
                         {
                             <span id="time"><strong>@time</strong> || </span>
@@ -189,24 +212,24 @@
 
     <ul>
         <li>
-            <strong>Maximum ml per kg per meal</strong> =
+            <strong>Maximum volume per meal</strong> =
             @foreach (Volumes meal in calculatedVolumes)
             {
-                <span><br />@meal.MaxMlPerKg ml on day @meal.Day</span>
+                <span><br />@meal.MaxMlPerKg ml/kg on day @meal.Day</span>
             }
         </li>
 
-        <li><strong>RER (kcal)</strong> = 70 x body weight (kg) ^0.75</li>
-        <li><strong>Kcal needed for day (if on reduced RER)</strong> = RER / number of days x current day number (eg. on day 2 out of 3 this would be RER / 3 x 2)</li>
-        <li><strong>Food per day (g)</strong> = kcal for day / kcal per g of food (or full RER / kcal per g of food)</li>
-        <li><strong>Water content of food per day (ml)</strong> = food per day (g) x (percentage water content of food / 100)</li>
+        <li><strong>RER (kcal)</strong> = 70 x BW (kg) <sup>0.75</sup></li>
+        <li><strong>Kcal needed for day</strong> = RER / number of days x current day number (eg. on day 2 out of 3 this would be RER / 3 x 2)</li>
+        <li><strong>Food per day (g)</strong> = kcal for day / kcal per g of food</li>
+        <li><strong>Water from food per day (ml)</strong> = food per day (g) x (water % in food / 100)</li>
         @if (data.Species == "Cat")
         {
-            <li><strong>Additional water needed per day (ml)</strong> = (80 x body weight (kg) ^0.75) - water content of food (ml)</li>
+            <li><strong>Additional water needed per day (ml)</strong> = (80 x BW (kg) <sup>0.75</sup>) - water from food (ml)</li>
         }
         else
         {
-            <li><strong>Additional water needed per day (ml)</strong> = (132 x body weight (kg) ^0.75) - water content of food (ml)</li>
+            <li><strong>Additional water needed per day (ml)</strong> = (132 x BW (kg) <sup>0.75</sup>) - water content of food (ml)</li>
         }
         <li><strong>Total volume being administered per day (ml)</strong> = food per day (g) + additional water per day (ml)</li>
         <li><strong>Number of meals per day (rounded to the nearest whole number)</strong> = total volume per day (ml) / maximum volume per meal (ml)</li>
@@ -224,6 +247,8 @@
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
     List<string> speciesSelection = ["Cat", "Dog"];
+    List<double> minMealSize = [5, 7.5, 10];
+    List<double> maxMealSize = [10, 15, 20];
 
     bool calculating = false;
     bool calculated = false;
@@ -238,11 +263,10 @@
         {
             < 1.5 => 2,
             < 2 => 2.5,
-            < 4 => 3,
-            < 6 => 4,
-            < 8 => 5,
-            < 10 => 6,
-            < 20 => 8,
+            < 4 => 4,
+            < 6 => 5,
+            < 8 => 6,
+            < 10 => 8,
             _ => 10,
         };
 

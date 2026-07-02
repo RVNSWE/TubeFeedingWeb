@@ -1,5 +1,7 @@
 html, body {
     font-family: Calibri, Verdana, Geneva, Tahoma, sans-serif;
+    color: #246e89;
+    background-color: #dcedf5;
 }
 
 p {
@@ -7,7 +9,8 @@ p {
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: #003c56;
+    text-decoration: none;
 }
 
 .btn-primary {
@@ -69,7 +72,7 @@ section {
     margin: 0.5rem;
     padding: 16px;
     font-size: 20px;
-    background-color: #baeadc;
+    background-color: #76e5d1;
     text-align: center;
 }
 
@@ -78,6 +81,7 @@ h1 {
     font-weight: bold;
     margin-top: 1em;
     margin-bottom: 0.5em;
+    color: #005675;
 }
 
 h3 {
@@ -85,12 +89,14 @@ h3 {
     text-align: center;
     margin-top: 1em;
     margin-bottom: 1em;
+    color: #005675;
 }
 
 h4 {
     font-weight: bold;
     margin-top: 1em;
     margin-bottom: 1em;
+    color: #005675;
 }
 
 #tools-subheading {
