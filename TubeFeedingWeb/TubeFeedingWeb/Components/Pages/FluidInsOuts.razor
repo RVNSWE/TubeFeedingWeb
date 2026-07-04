@@ -7,18 +7,16 @@
 
     @if (!calculated)
     {
+        <h3>Fluid Intake and Output</h3>
+
         <p class="centre-text">
-            <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
+            <strong>These tools are intended for use by registered veterinary professionals ONLY.</strong>
         </p>
         <p>
-            <strong>Please remember that you remain fully responsible for personally checking and verifying all information,
-            calculations and numbers you use in the care of your patients.</strong> If you are NOT a registered veterinary
-            professional, please close this page and seek advice from your veterinary clinic.
+            <strong>Although I've done my best to make it accurate, appropriate and safe, I can't guarantee it will always
+            stay up to date with current evidence or that I won't overlook anything or make mistakes, so you remain fully
+            responsible for personally verifying any output you choose to use on real patients.</strong>
         </p>
-        <br />
-        <hr />
-
-        <h3>Fluid Intake and Output</h3>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
             <div class="tool-container">

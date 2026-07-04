@@ -7,18 +7,18 @@
 
     @if (!calculated)
     {
+        <h3>Weight Loss Analysis</h3>
+
         <p class="centre-text">
-            <strong>This tool is intended for use by registered veterinary professionals ONLY.</strong>
+            <strong>These tools are intended for use by registered veterinary professionals ONLY.</strong>
         </p>
         <p>
-            <strong>Please remember that you remain fully responsible for personally checking and verifying all information,
-            calculations and numbers you use in the care of your patients.</strong> If you are NOT a registered veterinary
-            professional, please close this page and seek advice from your veterinary clinic.
+            <strong>
+                Although I've done my best to make it accurate, appropriate and safe, I can't guarantee it will always
+                stay up to date with current evidence or that I won't overlook anything or make mistakes, so you remain fully
+                responsible for personally verifying any output you choose to use on real patients.
+            </strong>
         </p>
-        <br />
-        <hr />
-
-        <h3>Weight Clinic Targets</h3>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
             <div class="tool-container">
@@ -54,20 +54,31 @@
     }
     else if (calculated)
     {
-        <h3>Weight Clinic Targets</h3>
+        <h3>Weight Loss Analysis</h3>
 
         <div class="tool-container">
-            <p class="flex-item">Percentage weight lost per week: <strong>@results.WeeklyPercentWeightLost %</strong></p>
-            <p class="flex-item">Target for next time: <strong>@results.NextTargetWeight kg</strong></p>
+            <p class="flex-item">Percentage of body weight lost per week: <strong>@results.WeeklyPercentWeightLost %</strong></p>
+            <p class="flex-item">Target weight for next time: <strong>@results.NextTargetWeight kg</strong></p>
             <p class="flex-item">Estimated ideal body weight (BCS 5/9): <strong>@results.IdealWeight kg</strong></p>
         </div>
 
+        if (@results.WeeklyPercentWeightLost < 0.5)
+        {
+            <p>
+                Less than 0.5% body weight loss per week may indicate the current weight loss plan is not effective enough.
+                Consider reducing the amount fed until a target weekly weight loss of 0.5% - 1.5% is reached.
+            </p>
+        }
+        if (@results.WeeklyPercentWeightLost > 1.5)
+        {
+            <p>
+                More than 1.5% body weight loss per week could mean the current diet is not meeting the patient's nutritional needs.
+                Consider increasing the amount fed until a target weekly weight loss of 0.5% - 1.5% is reached.
+            </p>
+        }
+
         <p>
-            Less than 0.5% body weight loss per week may indicate the current weight loss plan is not effective enough.
-            More than 1.5% per week could mean the patient's nutritional needs are not being adequately met.
-        </p>
-        <p>
-            All of these calculations are just estimates, and the 'ideal' body weight may not be realistic for extremely overweight
+            These targets are only estimates, and the calculated 'ideal' body weight may not be realistic for extremely overweight
             patients.
         </p>
         <br />

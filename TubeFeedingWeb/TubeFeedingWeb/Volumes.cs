@@ -91,9 +91,6 @@
         }
 
         /*
-         * If on re-feeding plan, start at 5ml/kg/meal, then 7.5ml/kg/meal once halfway to full RER,
-         * then 10ml/kg/meal once on full RER.
-         * 
          * Sources vary massively on maximum volume per feed and there's no apparent consensus, so
          * conservative values were chosen to minimise the risk of overload. Some sources suggest even
          * smaller volumes of 1-2 ml/kg/meal, but this would make it impossible to meet the patient's
