@@ -25,8 +25,8 @@ namespace TubeFeedingWeb
         public double DietWaterPercentage { get; set; } = 88;
         public double FlushVolume { get; set; }
         [Required(ErrorMessage = "Please select the minimum volume to be administered per meal as ml/kg.")]
-        public double MinMealSize { get; set; }
+        public double MinMealSize { get; set; } = 5;
         [Required(ErrorMessage = "Please select the maximum volume to be administered per meal as ml/kg.")]
-        public double MaxMealSize { get; set; }
+        public double MaxMealSize { get; set; } = 10;
     }
 }

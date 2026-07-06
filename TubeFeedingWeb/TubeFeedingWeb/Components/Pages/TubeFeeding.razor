@@ -9,19 +9,11 @@
     {
         <h3>Calculate Feeding Volumes</h3>
 
-        <p class="centre-text">
-            <strong>These tools are intended for use by registered veterinary professionals ONLY.</strong>
-        </p>
         <p>
             This tool will calculate the volume of food and water to give per meal and the number of meals needed per day,
             and will generate a suggested feeding schedule based on this. Underneath, it will also provide a basic generic
             client information handout, which you are free to use and adapt however you like. The full calculation workings
             will be shown at the bottom of the page, for transparency and to make it easier for you to verify the output.
-        </p>
-        <p>
-            <strong>Although I've done my best to make it accurate, appropriate and safe, I can't guarantee it will always
-            stay up to date with current evidence or that I won't overlook anything or make mistakes, so you remain fully
-            responsible for personally verifying any output you choose to use on real patients.</strong>
         </p>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
@@ -71,23 +63,15 @@
 
                 <label class="flex-item">
                     <strong>Minimum volume per meal (ml/kg):</strong><br />
-                    <InputRadioGroup Name="minSize" @bind-Value=data.MinMealSize>
-                        @foreach (double size in minMealSize)
-                        {
-                            <label class="radio-option">@size ml <InputRadio Name="minSize" Value="@size" /></label>
-                        }
-                    </InputRadioGroup>
+                    <InputNumber @bind-Value=data.MinMealSize min="1" max="60" />
                 </label>
+                <ValidationMessage For="@(() => data.MinMealSize)" class="flex-item" />
 
                 <label class="flex-item">
                     <strong>Maximum volume per meal (ml/kg):</strong><br />
-                    <InputRadioGroup Name="maxSize" @bind-Value=data.MaxMealSize>
-                        @foreach (double size in maxMealSize)
-                        {
-                            <label class="radio-option">@size ml <InputRadio Name="maxSize" Value="@size" /></label>
-                        }
-                    </InputRadioGroup>
+                    <InputNumber @bind-Value=data.MaxMealSize min="1" max="60" />
                 </label>
+                <ValidationMessage For="@(() => data.MaxMealSize)" class="flex-item" />
 
                 <label class="flex-item">
                     <strong>Number of days to re-feed over (enter "1" if starting at full RER):</strong><br />
@@ -247,8 +231,6 @@
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
     List<string> speciesSelection = ["Cat", "Dog"];
-    List<double> minMealSize = [5, 7.5, 10];
-    List<double> maxMealSize = [10, 15, 20];
 
     bool calculating = false;
     bool calculated = false;

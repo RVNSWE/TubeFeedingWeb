@@ -6,9 +6,7 @@
     public class Volumes
     {
         public double MaxMlPerKg { get; set; }
-        public double MinVolumePerMeal { get; set; }
         public double MaxVolumePerMeal { get; set; }
-        public double DayMultiplier { get; set; }
         public double RER { get; set; }
         public double FoodPerDay { get; set; }
         public double ContainersPerDay { get; set; }
@@ -34,7 +32,13 @@
             data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
-            GetMaxMlPerKg();
+
+            MaxMlPerKg = data.MaxMealSize;
+
+            if (data.MinMealSize < data.MaxMealSize)
+            {
+                GetMaxMlPerKg();
+            }
         }
 
         public void Calculate()
@@ -44,7 +48,7 @@
             FoodPerDay = RER / data.KcalPerG; // (g)
             ContainersPerDay = FoodPerDay / data.DietNetWeight; // Estimated number of food containers per day
             DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // (ml)
-            WaterPerDay = CalculateWaterPerDay() - DietWaterVolume; // (ml) TO DO: flush here
+            WaterPerDay = CalculateWaterPerDay() - DietWaterVolume; // (ml)
             TotalVolumePerDay = FoodPerDay + WaterPerDay; // (ml)
             MealsPerDay = (int)Math.Round(TotalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero);
             TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // (ml)
@@ -60,9 +64,10 @@
                 }
             }
 
-            double flushPerMeal = data.FlushVolume * 2;
+            double totalFlushVolume = 2 * data.FlushVolume * MealsPerDay;
+            WaterPerDay -= totalFlushVolume;
             FoodPerMeal = FoodPerDay / MealsPerDay;
-            WaterPerMeal = (WaterPerDay / MealsPerDay) - flushPerMeal;
+            WaterPerMeal = WaterPerDay / MealsPerDay;
 
             if (WaterPerMeal < 0)
             {
@@ -80,7 +85,7 @@
 
         private static double RoundDigits(double valueToRound)
         {
-            double roundedValue = valueToRound switch // Round volumes to more appropriate SF
+            double roundedValue = valueToRound switch // Round volumes to more appropriate decimal
             {
                 < 10 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
                 < 20 => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
@@ -91,16 +96,7 @@
         }
 
         /*
-         * Sources vary massively on maximum volume per feed and there's no apparent consensus, so
-         * conservative values were chosen to minimise the risk of overload. Some sources suggest even
-         * smaller volumes of 1-2 ml/kg/meal, but this would make it impossible to meet the patient's
-         * RER in many cases even with hourly feeds 24 hours/day, hence starting at 5ml/kg/meal.
-         * 
-         * Max ml/kg/meal could be made adjustable to give clinicians more autonomy, but this would
-         * add complexity and the tool was built to reduce cognitive and time burdens on clinicians,
-         * not add more things to think about. Clinicians who want a higher level of control are also
-         * less likely to be using this app, so on balance it was considered better and more helpful
-         * to hard code the volumes in.
+         * Calculate maximum ml/kg per meal for current day of re-feeding plan.
          */
         private void GetMaxMlPerKg()
         {
@@ -113,10 +109,6 @@
                 double difference = data.MaxMealSize - data.MinMealSize;
                 MaxMlPerKg = data.MinMealSize + (difference * 0.5);
             }
-            else
-            {
-                MaxMlPerKg = data.MaxMealSize;
-            }
         }
 
         /*
@@ -127,15 +119,6 @@
             double rER;
 
             rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
-
-            /*if (Day < data.Days)
-            {
-                rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
-            }
-            else
-            {
-                rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
-            }*/
 
             return rER;
         }
