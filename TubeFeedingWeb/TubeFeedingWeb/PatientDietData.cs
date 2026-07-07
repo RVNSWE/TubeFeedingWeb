@@ -28,5 +28,7 @@ namespace TubeFeedingWeb
         public double MinMealSize { get; set; } = 5;
         [Required(ErrorMessage = "Please select the maximum volume to be administered per meal as ml/kg.")]
         public double MaxMealSize { get; set; } = 10;
+        [Required(ErrorMessage = "Please select whether water would be administered separately or mixed into the food.")]
+        public string SeparateWater { get; set; } = string.Empty;
     }
 }

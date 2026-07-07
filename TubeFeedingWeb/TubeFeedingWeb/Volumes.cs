@@ -17,6 +17,8 @@
         public double TotalVolumePerMeal { get; set; }
         public double FoodPerMeal { get; set; }
         public double WaterPerMeal { get; set; }
+        public double WaterMlPerFoodG { get; set; }
+        public bool SeparateWater { get; set; }
         public int Day { get; set; }
         public IReadOnlyCollection<string> FormattedFeedingTimes { get; set; }
 
@@ -32,7 +34,7 @@
             data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
-
+            SeparateWater = data.SeparateWater == "Yes";
             MaxMlPerKg = data.MaxMealSize;
 
             if (data.MinMealSize < data.MaxMealSize)
@@ -66,16 +68,19 @@
 
             double totalFlushVolume = 2 * data.FlushVolume * MealsPerDay;
             WaterPerDay -= totalFlushVolume;
+
+            if (WaterPerDay < 0)
+            {
+                WaterPerDay = 0; // Water per day cannot be negative
+            }
+
+            WaterMlPerFoodG = WaterPerDay / FoodPerDay;
             FoodPerMeal = FoodPerDay / MealsPerDay;
             WaterPerMeal = WaterPerDay / MealsPerDay;
 
-            if (WaterPerMeal < 0)
-            {
-                WaterPerMeal = 0; // Water per meal cannot be negative
-            }
-
-            FoodPerMeal = RoundDigits(FoodPerMeal);
-            WaterPerMeal = RoundDigits(WaterPerMeal);
+            FoodPerMeal = RoundDecimalLowAccuracy(FoodPerMeal);
+            WaterPerMeal = RoundDecimalLowAccuracy(WaterPerMeal);
+            WaterMlPerFoodG = RoundDecimalHighAccuracy(WaterMlPerFoodG);
 
             ContainersPerDay = Math.Round(ContainersPerDay, 1, MidpointRounding.AwayFromZero);
 
@@ -83,13 +88,24 @@
             FormattedFeedingTimes = CreateFormattedListOfTimes(feedingTimes);
         }
 
-        private static double RoundDigits(double valueToRound)
+        private static double RoundDecimalLowAccuracy(double valueToRound)
         {
             double roundedValue = valueToRound switch // Round volumes to more appropriate decimal
             {
-                < 10 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
+                < 2 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
                 < 20 => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
                 _ => Math.Round(valueToRound, 0, MidpointRounding.AwayFromZero),
+            };
+
+            return roundedValue;
+        }
+
+        private static double RoundDecimalHighAccuracy(double valueToRound)
+        {
+            double roundedValue = valueToRound switch // Round volumes to more appropriate decimal
+            {
+                < 2 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
+                _ => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
             };
 
             return roundedValue;

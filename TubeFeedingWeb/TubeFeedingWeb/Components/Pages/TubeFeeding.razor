@@ -10,10 +10,9 @@
         <h3>Calculate Feeding Volumes</h3>
 
         <p>
-            This tool will calculate the volume of food and water to give per meal and the number of meals needed per day,
-            and will generate a suggested feeding schedule based on this. Underneath, it will also provide a basic generic
-            client information handout, which you are free to use and adapt however you like. The full calculation workings
-            will be shown at the bottom of the page, for transparency and to make it easier for you to verify the output.
+            Calculates food and water per meal and number of meals per day, and suggests a feeding schedule. Provides a
+            basic client information handout, which you are free to use and adapt however you like. Full calculation
+            workings will be shown at the bottom of the page.
         </p>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
@@ -22,9 +21,9 @@
                 <label class="flex-item">
                     <strong>Species:</strong><br />
                     <InputRadioGroup Name="species" @bind-Value=data.Species>
-                        @foreach (string species in speciesSelection)
+                        @foreach (string item in speciesSelection)
                         {
-                            <label class="radio-option">@species <InputRadio Name="species" Value="@species" /></label>
+                            <label class="radio-option">@item <InputRadio Name="species" Value="@item" /></label>
                         }
                     </InputRadioGroup>
                 </label>
@@ -78,9 +77,25 @@
                     <InputNumber @bind-Value=data.Days min="1" max="10" />
                 </label>
                 <ValidationMessage For="@(() => data.Days)" class="flex-item" />
+
+                <label class="flex-item">
+                    <strong>Mix water into the food or administer it separately?:</strong><br />
+                    <InputRadioGroup Name="separateWater" @bind-Value=data.SeparateWater>
+                        @foreach (string item in separateWaterSelection)
+                        {
+                            <label class="radio-option">@item <InputRadio Name="separateWater" Value="@item" /></label>
+                        }
+                    </InputRadioGroup>
+                </label>
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
         </EditForm>
+
+        <hr />
+
+        <p>
+
+        </p>
     }
     else if (calculated)
     {
@@ -96,7 +111,14 @@
                 <div>
                     <p><strong><u>Day: @meal.Day</u></strong></p>
                     <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
-                    <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                    @if (meal.SeparateWater)
+                    {
+                        <p>Volume of water to add per g or ml of food prepared: <strong>@meal.WaterMlPerFoodG ml</strong></p>
+                    }
+                    else
+                    {
+                        <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                    }
                     <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
                     <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @ContainerText(meal)</strong></p>
                     <p>
@@ -231,6 +253,7 @@
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
     List<string> speciesSelection = ["Cat", "Dog"];
+    List<string> separateWaterSelection = ["Yes", "No"];
 
     bool calculating = false;
     bool calculated = false;
@@ -243,12 +266,12 @@
 
         data.FlushVolume = data.BodyWeight switch
         {
-            < 1.5 => 2,
+            < 1 => 1.5,
+            < 1.5 => 2.5,
             < 2 => 2.5,
-            < 4 => 4,
-            < 6 => 5,
-            < 8 => 6,
-            < 10 => 8,
+            < 3 => 3,
+            < 5 => 4,
+            < 10 => 5,
             _ => 10,
         };
 
