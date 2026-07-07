@@ -7,13 +7,7 @@
 
     @if (!calculated)
     {
-        <h3>Calculate Feeding Volumes</h3>
-
-        <p>
-            Calculates food and water per meal and number of meals per day, and suggests a feeding schedule. Provides a
-            basic client information handout, which you are free to use and adapt however you like. Full calculation
-            workings will be shown at the bottom of the page.
-        </p>
+        <h3>Generate Feeding Plan</h3>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
             <div class="tool-container">
@@ -90,15 +84,11 @@
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
         </EditForm>
-
-        <hr />
-
-        <p>
-
-        </p>
     }
     else if (calculated)
     {
+        <button class="btn btn-primary" @onclick="Reset">Reset</button>
+
         <h3>Tube Feeding Instructions</h3>
             
         <div>
@@ -120,7 +110,7 @@
                         <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
                     }
                     <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
-                    <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @ContainerText(meal)</strong></p>
+                    <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @FoodContainerText(meal)</strong></p>
                     <p>
                         Example feeding schedule: || 
                         @foreach (string time in meal.FormattedFeedingTimes)
@@ -201,50 +191,6 @@
             </p>
         </div>
         <br />
-
-    <button class="btn btn-primary" @onclick="Reset">Reset</button>
-
-        <hr />
-    <h3>Calculations</h3>
-
-    <div class="centred-container">
-        <p class="flex-item">Species: <strong>@data.Species</strong></p>
-        <p class="flex-item">Body weight: <strong>@data.BodyWeight kg</strong></p>
-        <p class="flex-item">Diet energy content: <strong>@data.KcalPerG kcal/g</strong></p>
-        <p class="flex-item">Food per container: <strong>@data.DietNetWeight g</strong></p>
-        <p class="flex-item">Diet moisture content: <strong>@data.DietWaterPercentage %</strong></p>
-        <p class="flex-item">Number of days to increase feeds over: <strong>@data.Days</strong></p>
-    </div>
-
-    <ul>
-        <li>
-            <strong>Maximum volume per meal</strong> =
-            @foreach (Volumes meal in calculatedVolumes)
-            {
-                <span><br />@meal.MaxMlPerKg ml/kg on day @meal.Day</span>
-            }
-        </li>
-
-        <li><strong>RER (kcal)</strong> = 70 x BW (kg) <sup>0.75</sup></li>
-        <li><strong>Kcal needed for day</strong> = RER / number of days x current day number (eg. on day 2 out of 3 this would be RER / 3 x 2)</li>
-        <li><strong>Food per day (g)</strong> = kcal for day / kcal per g of food</li>
-        <li><strong>Water from food per day (ml)</strong> = food per day (g) x (water % in food / 100)</li>
-        @if (data.Species == "Cat")
-        {
-            <li><strong>Additional water needed per day (ml)</strong> = (80 x BW (kg) <sup>0.75</sup>) - water from food (ml)</li>
-        }
-        else
-        {
-            <li><strong>Additional water needed per day (ml)</strong> = (132 x BW (kg) <sup>0.75</sup>) - water content of food (ml)</li>
-        }
-        <li><strong>Total volume being administered per day (ml)</strong> = food per day (g) + additional water per day (ml)</li>
-        <li><strong>Number of meals per day (rounded to the nearest whole number)</strong> = total volume per day (ml) / maximum volume per meal (ml)</li>
-        <li><strong>Total volume per meal (ml)</strong> = total volume per day (ml) / meals per day</li>
-        <li><strong>If total volume per meal exceeds the maximum at this point, meals per day are increased until it doesn't.</strong></li>
-        <li><strong>Food per meal (g)</strong> = food per day (g) / meals per day</li>
-        <li><strong>Water to add per meal (ml)</strong> = (water per day (ml) / meals per day) - (volume of flush (ml) x 2)</li>
-        <li><strong>Containers of food used today</strong> = total food today (g) / net weight of food per container (g)</li>
-    </ul>
     }
 
 </div>
@@ -293,7 +239,7 @@
         calculatedVolumes = [];
     }
 
-    private string ContainerText(Volumes meal)
+    private string FoodContainerText(Volumes meal)
     {
         string text = meal.ContainersPerDay switch
         {

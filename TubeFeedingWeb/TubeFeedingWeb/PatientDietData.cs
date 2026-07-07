@@ -24,9 +24,11 @@ namespace TubeFeedingWeb
             Range(1, 99, ErrorMessage = "Only numbers from 1 - 99 are valid. If using a powdered food, please enter the percentage moisture content after reconstitution.")]
         public double DietWaterPercentage { get; set; } = 88;
         public double FlushVolume { get; set; }
-        [Required(ErrorMessage = "Please select the minimum volume to be administered per meal as ml/kg.")]
+        [Required(ErrorMessage = "Please select the minimum volume to be administered per meal as ml/kg."),
+            Range(1, 60, ErrorMessage = "Must be a number from 1 to 60.")]
         public double MinMealSize { get; set; } = 5;
-        [Required(ErrorMessage = "Please select the maximum volume to be administered per meal as ml/kg.")]
+        [Required(ErrorMessage = "Please select the maximum volume to be administered per meal as ml/kg."),
+            Range(1, 60, ErrorMessage = "Must be a number from 1 to 60.")]
         public double MaxMealSize { get; set; } = 10;
         [Required(ErrorMessage = "Please select whether water would be administered separately or mixed into the food.")]
         public string SeparateWater { get; set; } = string.Empty;

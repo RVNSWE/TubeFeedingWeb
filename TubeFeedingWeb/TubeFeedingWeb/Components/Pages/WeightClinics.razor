@@ -9,17 +9,6 @@
     {
         <h3>Weight Loss Analysis</h3>
 
-        <p class="centre-text">
-            <strong>These tools are intended for use by registered veterinary professionals ONLY.</strong>
-        </p>
-        <p>
-            <strong>
-                Although I've done my best to make it accurate, appropriate and safe, I can't guarantee it will always
-                stay up to date with current evidence or that I won't overlook anything or make mistakes, so you remain fully
-                responsible for personally verifying any output you choose to use on real patients.
-            </strong>
-        </p>
-
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
             <div class="tool-container">
                 <DataAnnotationsValidator />
@@ -54,6 +43,8 @@
     }
     else if (calculated)
     {
+        <button class="btn btn-primary" @onclick="Reset">Reset</button>
+
         <h3>Weight Loss Analysis</h3>
 
         <div class="tool-container">
@@ -81,30 +72,6 @@
             These targets are only estimates, and the calculated 'ideal' body weight may not be realistic for extremely overweight
             patients.
         </p>
-        <br />
-
-        <button class="btn btn-primary" @onclick="Reset">Reset</button>
-
-        <hr />
-        <h3>Calculations</h3>
-
-        <div class="tool-container">
-            <p class="flex-item">BCS: <strong>@data.BCS</strong></p>
-            <p class="flex-item">Current body weight: <strong>@data.CurrentBodyWeight kg</strong></p>
-            <p class="flex-item">Last body weight: <strong>@data.LastBodyWeight kg</strong></p>
-            <p class="flex-item">Weeks since last weighed: <strong>@data.WeeksSinceLastWeighed</strong></p>
-            <p class="flex-item">Weeks until next weighed: <strong>@data.WeeksUntilNextWeighed</strong></p>
-        </div>
-
-        <ul>
-            <li><strong>Weight (kg) lost since last time</strong> = last weight (kg) - current weight (kg)</li>
-            <li><strong>Percentage weight loss since last time</strong> = weight lost (kg) / last weight (kg) x 100</li>
-            <li><strong>Percentage weight loss per week since last time</strong> = % lost / weeks since last weighed</li>
-            <li><strong>1% of current bodyweight (the target amount to lose per week)</strong> = 0.01 x current weight (kg)</li>
-            <li><strong>Target amount (kg) to lose for next appointment</strong> = 1% of current weight (kg) x weeks until next weighed</li>
-            <li><strong>Target weight (kg) for next appointment</strong> = current weight (kg) - weight to lose (kg)</li>
-            <li><strong>Estimated ideal body weight (at BCS 5/9)</strong> = current weight (kg) / @results.WeightModifier</li>
-        </ul>
     }
 
 </div>
