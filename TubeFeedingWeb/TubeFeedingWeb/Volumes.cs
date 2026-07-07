@@ -88,9 +88,9 @@
             FormattedFeedingTimes = CreateFormattedListOfTimes(feedingTimes);
         }
 
-        private static double RoundDecimalLowAccuracy(double valueToRound)
+        private double RoundDecimalLowAccuracy(double valueToRound)
         {
-            double roundedValue = valueToRound switch // Round volumes to more appropriate decimal
+            double roundedValue = data.BodyWeight switch // Round volumes to more appropriate decimal
             {
                 < 2 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
                 < 20 => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
@@ -100,9 +100,9 @@
             return roundedValue;
         }
 
-        private static double RoundDecimalHighAccuracy(double valueToRound)
+        private double RoundDecimalHighAccuracy(double valueToRound)
         {
-            double roundedValue = valueToRound switch // Round volumes to more appropriate decimal
+            double roundedValue = data.BodyWeight switch // Round volumes to more appropriate decimal
             {
                 < 2 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
                 _ => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
