@@ -10,6 +10,7 @@
         <h3>Generate Feeding Plan</h3>
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
+            <h4>Patient Information</h4>
             <div class="tool-container">
                 <DataAnnotationsValidator />
                 <label class="flex-item">
@@ -28,9 +29,12 @@
                     kg
                 </label>
                 <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
+            </div>
 
+            <h4>Diet Information</h4>
+            <div class="tool-container">
                 <label class="flex-item">
-                    <strong>Name of diet to be fed:</strong><br />
+                    <strong>Name:</strong><br />
                     <InputText @bind-Value=data.DietName />
                 </label>
                 <ValidationMessage For="@(() => data.DietName)" class="flex-item" />
@@ -53,19 +57,17 @@
                     %
                 </label>
                 <ValidationMessage For="@(() => data.DietWaterPercentage)" class="flex-item" />
+            </div>
 
-                <label class="flex-item">
-                    <strong>Minimum volume per meal (ml/kg):</strong><br />
-                    <InputNumber @bind-Value=data.MinMealSize min="1" max="60" />
-                </label>
-                <ValidationMessage For="@(() => data.MinMealSize)" class="flex-item" />
+            <h4>Feeding Information</h4>
 
-                <label class="flex-item">
-                    <strong>Maximum volume per meal (ml/kg):</strong><br />
-                    <InputNumber @bind-Value=data.MaxMealSize min="1" max="60" />
-                </label>
-                <ValidationMessage For="@(() => data.MaxMealSize)" class="flex-item" />
+            <p>
+                If you want to dilute the food with water, choose "Mixed in" and you'll be shown how much water to
+                add per g of food on each day of the feeding plan to meet your patient's calculated hydration needs.
+                If you choose "Separate", you'll be shown an exact amount of water to administer per meal.
+            </p>
 
+            <div class="tool-container">
                 <label class="flex-item">
                     <strong>Number of days to re-feed over (enter "1" if starting at full RER):</strong><br />
                     <InputNumber @bind-Value=data.Days min="1" max="10" />
@@ -73,7 +75,7 @@
                 <ValidationMessage For="@(() => data.Days)" class="flex-item" />
 
                 <label class="flex-item">
-                    <strong>Mix water into the food or administer it separately?:</strong><br />
+                    <strong>Mix water into the food or administer separately?:</strong><br />
                     <InputRadioGroup Name="separateWater" @bind-Value=data.SeparateWater>
                         @foreach (string item in separateWaterSelection)
                         {
@@ -103,11 +105,12 @@
                     <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
                     @if (meal.SeparateWater)
                     {
-                        <p>Volume of water to add per g or ml of food prepared: <strong>@meal.WaterMlPerFoodG ml</strong></p>
+                        <p>Water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
                     }
                     else
                     {
-                        <p>Additional water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                        double tempExample = meal.WaterMlPerFoodG * 10;
+                        <p>Water to mix in per gram of food: <strong>@meal.WaterMlPerFoodG ml</strong> (eg. @tempExample ml of water per 10 g of food)</p>
                     }
                     <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
                     <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @FoodContainerText(meal)</strong></p>
@@ -199,7 +202,7 @@
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
     List<string> speciesSelection = ["Cat", "Dog"];
-    List<string> separateWaterSelection = ["Yes", "No"];
+    List<string> separateWaterSelection = ["Mixed in", "Separate"];
 
     bool calculating = false;
     bool calculated = false;

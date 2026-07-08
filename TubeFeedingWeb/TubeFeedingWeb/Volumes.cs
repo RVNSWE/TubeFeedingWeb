@@ -5,7 +5,7 @@
      */
     public class Volumes
     {
-        public double MaxMlPerKg { get; set; }
+        private const int MAX_ML_PER_KG = 10; // Hard coded for simplicity
         public double MaxVolumePerMeal { get; set; }
         public double RER { get; set; }
         public double FoodPerDay { get; set; }
@@ -34,18 +34,12 @@
             data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
-            SeparateWater = data.SeparateWater == "Yes";
-            MaxMlPerKg = data.MaxMealSize;
-
-            if (data.MinMealSize < data.MaxMealSize)
-            {
-                GetMaxMlPerKg();
-            }
+            SeparateWater = data.SeparateWater == "Separate";
         }
 
         public void Calculate()
         {
-            MaxVolumePerMeal = data.BodyWeight * MaxMlPerKg; // (ml)
+            MaxVolumePerMeal = data.BodyWeight * (double)MAX_ML_PER_KG;
             RER = GetRER(); // (kcal)
             FoodPerDay = RER / data.KcalPerG; // (g)
             ContainersPerDay = FoodPerDay / data.DietNetWeight; // Estimated number of food containers per day
@@ -109,22 +103,6 @@
             };
 
             return roundedValue;
-        }
-
-        /*
-         * Calculate maximum ml/kg per meal for current day of re-feeding plan.
-         */
-        private void GetMaxMlPerKg()
-        {
-            if (Day < data.Days * 0.5)
-            {
-                MaxMlPerKg = data.MinMealSize;
-            }
-            else if (Day < data.Days)
-            {
-                double difference = data.MaxMealSize - data.MinMealSize;
-                MaxMlPerKg = data.MinMealSize + (difference * 0.5);
-            }
         }
 
         /*
@@ -273,5 +251,22 @@
 
             return formattedList;
         }
+
+        /*
+         * Calculate maximum ml/kg per meal for current day of re-feeding plan if not the final day.
+         * Half vol at first, then 3/4.
+         */
+        /*private void GetMaxMlPerKg()
+        {
+            if (Day < data.Days * 0.5)
+            {
+                MaxMlPerKg = data.MinMealSize;
+            }
+            else if (Day < data.Days)
+            {
+                double difference = data.MaxMealSize - data.MinMealSize;
+                MaxMlPerKg = data.MinMealSize + (difference * 0.5);
+            }
+        }*/
     }
 }
