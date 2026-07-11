@@ -72,6 +72,11 @@
             FoodPerMeal = FoodPerDay / MealsPerDay;
             WaterPerMeal = WaterPerDay / MealsPerDay;
 
+            if(SeparateWater)
+            {
+                FoodPerMeal += WaterMlPerFoodG * FoodPerMeal;
+            }
+
             FoodPerMeal = RoundDecimalLowAccuracy(FoodPerMeal);
             WaterPerMeal = RoundDecimalLowAccuracy(WaterPerMeal);
             WaterMlPerFoodG = RoundDecimalHighAccuracy(WaterMlPerFoodG);
