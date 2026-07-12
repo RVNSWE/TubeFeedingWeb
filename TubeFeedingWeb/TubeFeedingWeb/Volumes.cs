@@ -39,17 +39,17 @@
 
         public void Calculate()
         {
-            MaxVolumePerMeal = data.BodyWeight * (double)MAX_ML_PER_KG;
-            RER = GetRER(); // (kcal)
-            FoodPerDay = RER / data.KcalPerG; // (g)
-            ContainersPerDay = FoodPerDay / data.DietNetWeight; // Estimated number of food containers per day
-            DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // (ml)
-            WaterPerDay = CalculateWaterPerDay() - DietWaterVolume; // (ml)
-            TotalVolumePerDay = FoodPerDay + WaterPerDay; // (ml)
-            MealsPerDay = (int)Math.Round(TotalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero);
-            TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // (ml)
+            MaxVolumePerMeal = data.BodyWeight * (double)MAX_ML_PER_KG; // Get the maximum ml/kg per meal
+            RER = GetRER(); // (kcal) Calculate the RER and return the kcal needed for today
+            FoodPerDay = RER / data.KcalPerG; // (g) Get the total volume of food needed for today
+            ContainersPerDay = FoodPerDay / data.DietNetWeight; // Calculate how many food containers / how much of a container will be used today
+            DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // (ml) Calculate the volume of water in the food
+            WaterPerDay = CalculateWaterPerDay() - DietWaterVolume; // (ml) Calculate how much water is needed in addition to this
+            TotalVolumePerDay = FoodPerDay + WaterPerDay; // (ml) Calculate the total combined volume of food and water to administer
+            MealsPerDay = (int)Math.Round(TotalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Calculate how many meals to split feeds over
+            TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // (ml) Calculate the total combined volume of food and water to administer per meal
 
-            while (TotalVolumePerMeal > MaxVolumePerMeal) // While the volume administered per meal exceeds the max allowable volume
+            while (TotalVolumePerMeal > MaxVolumePerMeal) // While the volume administered per meal exceeds the maximum allowable volume
             {
                 MealsPerDay++; // Add another meal per day
                 TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // Recalculate the volume per meal
@@ -60,21 +60,25 @@
                 }
             }
 
-            double totalFlushVolume = 2 * data.FlushVolume * MealsPerDay;
-            WaterPerDay -= totalFlushVolume;
+            double totalFlushVolume = 2 * data.FlushVolume * MealsPerDay; // (ml) Calculate the total volume of water administered as flush with each meal
+            WaterPerDay -= totalFlushVolume; // (ml) Calculate the volume of water needed today in addition to what is in the food and administered as flush
 
             if (WaterPerDay < 0)
             {
                 WaterPerDay = 0; // Water per day cannot be negative
             }
 
-            WaterMlPerFoodG = WaterPerDay / FoodPerDay;
-            FoodPerMeal = FoodPerDay / MealsPerDay;
-            WaterPerMeal = WaterPerDay / MealsPerDay;
+            FoodPerMeal = FoodPerDay / MealsPerDay; // (g) Calculate how much food to administer per meal
 
-            if(SeparateWater)
+            if(SeparateWater) // If administering food and water separately
             {
-                FoodPerMeal += WaterMlPerFoodG * FoodPerMeal;
+                WaterPerMeal = WaterPerDay / MealsPerDay; // (ml) Calculate how much water to administer per meal
+            }
+            else // If mixing water into food before drawing up meals
+            {
+                WaterMlPerFoodG = WaterPerDay / FoodPerDay; // (ml) Calculate the volume of water to mix in per g of food to meet total fluid requirements
+                double waterAddedToFood = WaterMlPerFoodG * FoodPerMeal; // (ml) Calculate the volume of added water per meal
+                FoodPerMeal += waterAddedToFood; // (ml) Calculate the amount of diluted food to draw up per meal
             }
 
             FoodPerMeal = RoundDecimalLowAccuracy(FoodPerMeal);
