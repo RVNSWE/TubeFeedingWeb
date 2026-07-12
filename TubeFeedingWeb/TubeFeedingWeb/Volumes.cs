@@ -11,14 +11,15 @@
         public double FoodPerDay { get; set; }
         public double ContainersPerDay { get; set; }
         public double DietWaterVolume { get; set; }
+        public double AdditionalWaterRequirement { get; set; }
         public double WaterPerDay { get; set; }
         public double TotalVolumePerDay { get; set; }
         public int MealsPerDay { get; set; }
         public double TotalVolumePerMeal { get; set; }
         public double FoodPerMeal { get; set; }
         public double WaterPerMeal { get; set; }
-        public double WaterMlPerFoodG { get; set; }
-        public bool SeparateWater { get; set; }
+        public double WaterFoodDilutionRate { get; set; }
+        public bool FoodDiluted { get; set; }
         public int Day { get; set; }
         public IReadOnlyCollection<string> FormattedFeedingTimes { get; set; }
 
@@ -34,66 +35,81 @@
             data = patientDietData;
             Day = day;
             FormattedFeedingTimes = [];
-            SeparateWater = data.SeparateWater == "Separate";
+            FoodDiluted = data.FoodDilutedOrSeparate == "Diluted";
         }
 
         public void Calculate()
         {
-            MaxVolumePerMeal = data.BodyWeight * (double)MAX_ML_PER_KG; // Get the maximum ml/kg per meal
-            RER = GetRER(); // (kcal) Calculate the RER and return the kcal needed for today
-            FoodPerDay = RER / data.KcalPerG; // (g) Get the total volume of food needed for today
-            ContainersPerDay = FoodPerDay / data.DietNetWeight; // Calculate how many food containers / how much of a container will be used today
-            DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // (ml) Calculate the volume of water in the food
-            WaterPerDay = CalculateWaterPerDay() - DietWaterVolume; // (ml) Calculate how much water is needed in addition to this
-            TotalVolumePerDay = FoodPerDay + WaterPerDay; // (ml) Calculate the total combined volume of food and water to administer
-            MealsPerDay = (int)Math.Round(TotalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // Calculate how many meals to split feeds over
-            TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // (ml) Calculate the total combined volume of food and water to administer per meal
+            MaxVolumePerMeal = data.BodyWeight * (double)MAX_ML_PER_KG; // the maximum ml/kg per meal
+            RER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day; // (kcal) work out the kcals to feed today
+            FoodPerDay = RER / data.KcalPerG; // (g) the total volume of food needed for today
+            ContainersPerDay = FoodPerDay / data.DietNetWeight; // how many containers of food will be used up today
+            DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // (ml) the volume of water the food contains
+            AdditionalWaterRequirement = CalculateWaterPerDay() - DietWaterVolume; // (ml) the patient's remaining daily water requirement
+            TotalVolumePerDay = FoodPerDay + AdditionalWaterRequirement; // (ml) the total volume to administer
+            CalculateMealsPerDay(); // work out how many meals to split feeding into
 
-            while (TotalVolumePerMeal > MaxVolumePerMeal) // While the volume administered per meal exceeds the maximum allowable volume
+            FoodPerMeal = FoodPerDay / MealsPerDay; // (g) how much food to administer per meal
+            WaterPerMeal = WaterPerDay / MealsPerDay; // (ml) how much water to administer per meal
+
+            if (FoodDiluted)
             {
-                MealsPerDay++; // Add another meal per day
-                TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // Recalculate the volume per meal
+                WaterFoodDilutionRate = RoundDecimalHighAccuracy(WaterPerDay / FoodPerDay); // the water:food ratio needed to meet total fluid requirements
+                FoodPerMeal += WaterPerMeal; // (ml) the volume of diluted food to draw up per meal
+            }
+
+            FoodPerMeal = RoundDecimal(FoodPerMeal);
+            WaterPerMeal = RoundDecimal(WaterPerMeal);
+            ContainersPerDay = Math.Round(ContainersPerDay, 1, MidpointRounding.AwayFromZero);
+
+            IReadOnlyCollection<double> feedingTimes = CalculateFeedingPlan(); // create the feeding schedule and return as an unformatted list of times
+            FormattedFeedingTimes = CreateFormattedListOfTimes(feedingTimes); // format the times to be human readable
+        }
+
+        /*
+         * Calculate the number of meals the full volume will need to be split into. 
+         */
+        private void CalculateMealsPerDay()
+        {
+            MealsPerDay = (int)Math.Round(TotalVolumePerDay / MaxVolumePerMeal, 0, MidpointRounding.AwayFromZero); // initial estimate
+            AdjustTotalVolume(); // take into account volume of water used to flush the tube
+
+            while (TotalVolumePerMeal > MaxVolumePerMeal)
+            {
+                MealsPerDay++; // add another meal per day
+                AdjustTotalVolume(); // re-adjust for flush
 
                 if (MealsPerDay > 23)
                 {
-                    break; // Do not exceed one meal per hour
+                    break; // do not exceed one meal per hour
                 }
             }
-
-            double totalFlushVolume = 2 * data.FlushVolume * MealsPerDay; // (ml) Calculate the total volume of water administered as flush with each meal
-            WaterPerDay -= totalFlushVolume; // (ml) Calculate the volume of water needed today in addition to what is in the food and administered as flush
-
-            if (WaterPerDay < 0)
-            {
-                WaterPerDay = 0; // Water per day cannot be negative
-            }
-
-            FoodPerMeal = FoodPerDay / MealsPerDay; // (g) Calculate how much food to administer per meal
-
-            if(SeparateWater) // If administering food and water separately
-            {
-                WaterPerMeal = WaterPerDay / MealsPerDay; // (ml) Calculate how much water to administer per meal
-            }
-            else // If mixing water into food before drawing up meals
-            {
-                WaterMlPerFoodG = WaterPerDay / FoodPerDay; // (ml) Calculate the volume of water to mix in per g of food to meet total fluid requirements
-                double waterAddedToFood = WaterMlPerFoodG * FoodPerMeal; // (ml) Calculate the volume of added water per meal
-                FoodPerMeal += waterAddedToFood; // (ml) Calculate the amount of diluted food to draw up per meal
-            }
-
-            FoodPerMeal = RoundDecimalLowAccuracy(FoodPerMeal);
-            WaterPerMeal = RoundDecimalLowAccuracy(WaterPerMeal);
-            WaterMlPerFoodG = RoundDecimalHighAccuracy(WaterMlPerFoodG);
-
-            ContainersPerDay = Math.Round(ContainersPerDay, 1, MidpointRounding.AwayFromZero);
-
-            IReadOnlyCollection<double> feedingTimes = CalculateFeedingPlan();
-            FormattedFeedingTimes = CreateFormattedListOfTimes(feedingTimes);
         }
 
-        private double RoundDecimalLowAccuracy(double valueToRound)
+        /*
+         * Estimate how much water will be used as flush and separate this from the patient's daily fluid requirement, then re-calculate meals.
+         */
+        private void AdjustTotalVolume()
         {
-            double roundedValue = data.BodyWeight switch // Round volumes to more appropriate decimal
+            double totalFlushPerDay = 2 * data.FlushVolume * MealsPerDay;
+
+            if (totalFlushPerDay > AdditionalWaterRequirement)
+            {
+                WaterPerDay = 0; // if the volume of flush per day is more than the patient's additional fluid requirement, don't add any more water
+                TotalVolumePerDay = FoodPerDay + totalFlushPerDay; // (ml) food and flush are all that will be administered
+            }
+            else
+            {
+                WaterPerDay = AdditionalWaterRequirement - totalFlushPerDay; // otherwise subtract the volume of flush per day from the additional water requirement
+                TotalVolumePerDay = FoodPerDay + AdditionalWaterRequirement; // (ml) total daily volume is food, flush and additional water
+            }
+
+            TotalVolumePerMeal = TotalVolumePerDay / MealsPerDay; // (ml) recalculate the volume per meal
+        }
+
+        private double RoundDecimal(double valueToRound)
+        {
+            double roundedValue = data.BodyWeight switch // round volumes to more appropriate decimal
             {
                 < 2 => Math.Round(valueToRound, 2, MidpointRounding.AwayFromZero),
                 < 20 => Math.Round(valueToRound, 1, MidpointRounding.AwayFromZero),
@@ -112,18 +128,6 @@
             };
 
             return roundedValue;
-        }
-
-        /*
-         * Get RER for current day of re-feeding plan.
-         */
-        private double GetRER()
-        {
-            double rER;
-
-            rER = (70 * Math.Pow(data.BodyWeight, 0.75)) / data.Days * Day;
-
-            return rER;
         }
 
         /*

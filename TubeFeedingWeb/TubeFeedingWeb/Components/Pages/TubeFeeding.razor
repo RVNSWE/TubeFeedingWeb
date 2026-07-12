@@ -77,10 +77,10 @@
 
                 <label class="flex-item">
                     <strong>Mix water into the food or administer separately?:</strong><br />
-                    <InputRadioGroup Name="separateWater" @bind-Value=data.SeparateWater>
-                        @foreach (string item in separateWaterSelection)
+                    <InputRadioGroup Name="foodDilutedOrSeparate" @bind-Value=data.FoodDilutedOrSeparate>
+                        @foreach (string item in foodDilutedOrSeparateSelection)
                         {
-                            <label class="radio-option">@item <InputRadio Name="separateWater" Value="@item" /></label>
+                            <label class="radio-option">@item <InputRadio Name="foodDilutedOrSeparate" Value="@item" /></label>
                         }
                     </InputRadioGroup>
                 </label>
@@ -104,14 +104,14 @@
                 <div>
                     <p><strong><u>Day: @meal.Day</u></strong></p>
                     <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
-                    @if (meal.SeparateWater)
+                    @if (meal.FoodDiluted)
                     {
-                        <p>Water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                        double tempExample = meal.WaterFoodDilutionRate * 10;
+                        <p>Volume of water (ml) to mix in per gram of food: <strong>@meal.WaterFoodDilutionRate ml</strong> (eg. @tempExample ml of water per 10 g of food)</p>
                     }
                     else
                     {
-                        double tempExample = meal.WaterMlPerFoodG * 10;
-                        <p>Water to mix in per gram of food: <strong>@meal.WaterMlPerFoodG ml</strong> (eg. @tempExample ml of water per 10 g of food)</p>
+                        <p>Water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
                     }
                     <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
                     <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @FoodContainerText(meal)</strong></p>
@@ -203,7 +203,7 @@
     PatientDietData data = new();
     List<Volumes> calculatedVolumes = [];
     List<string> speciesSelection = ["Cat", "Dog"];
-    List<string> separateWaterSelection = ["Mixed in", "Separate"];
+    List<string> foodDilutedOrSeparateSelection = ["Diluted", "Separate"];
 
     bool calculating = false;
     bool calculated = false;
