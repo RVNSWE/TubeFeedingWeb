@@ -120,7 +120,7 @@
                         if (meal.WaterFoodDilutionRate > 0)
                         {
                             double tempExample = meal.WaterFoodDilutionRate * 10;
-                            <p>Dilution rate: <strong>@meal.WaterFoodDilutionRate ml</strong> (eg. mix in @tempExample ml of water per 10 g of food)</p>
+                            <p>Dilution rate: <strong>@meal.WaterFoodDilutionRate ml of water per gram of food</strong></p>
                         }
                     }
 
@@ -174,13 +174,17 @@
             @if (data.FoodDilutedOrSeparate == "Diluted")
             {
                 <p>
-                    If a dilution rate is provided in the instructions above, prepare a portion of food at the dilution rate
-                    specified before drawing up the volume to be administered through the tube.
+                    If a dilution rate is provided in the instructions above, prepare a portion of food mixed with water at the
+                    dilution rate specified. From this, draw up the volume to be administered into a separate syringe.
                 </p>
             }
             else
             {
-                
+                <p>
+                    If the instructions above specify a volume of water to administer in addition to food, either draw this up
+                    in its own syringe to administer separately or add it to one of the syringes of water to be used for flush.
+                    Draw up the specified volume of food into a syringe on its own.
+                </p>
             }
             <p>
                 Place the filled syringes into a jug of <strong>warm</strong> (not hot!) water until they reach body temperature.
@@ -192,7 +196,8 @@
             <p>
                 <ol>
                     <li>
-                        <p>Pinch the feeding tube to prevent food from leaking out when you remove the cap. Attach an
+                        <p>
+                            Pinch the feeding tube to prevent food from leaking out or air from being sucked in when you remove the cap. Attach an
                         empty syringe to the feeding tube port, stop pinching, and gently draw back on the plunger. You
                         should feel some resistance, and the plunger should return to its starting position when you let go
                         of it. <strong>If this does not happen, it may mean the tube has become displaced. STOP immediately, and
@@ -206,15 +211,15 @@
                     <li>
                         <p>Slowly administer the prepared volume of food through the tube. You may notice your pet
                         swallowing as you do this. This is normal, as the food is being administered into the oesophagus
-                        rather than directly into the stomach. If they regurgitate, slow down the rate of administration.
+                        rather than directly into the stomach. If they regurgitate, slow down even more.
                         <strong>If regurgitation continues, stop feeding and contact the clinic for advice.</strong></p>
                     </li>
                     <li>
-                        <p>Slowly flush the tube with water again to clear it of any residual food.</p>
+                        <p>Slowly flush the tube with water again to clear any residual food.</p>
                     </li>
                     <li>
                         <p>Place the cap back on the feeding tube and wipe away any food from the outside of the tube
-                        with a clean, damp cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
+                        with a clean cloth. Ensure the outside of the tube is dry before tucking it away again. Rinse
                         the used syringes with water to clean them ready for the next feed.</p>
                     </li>
                 </ol>

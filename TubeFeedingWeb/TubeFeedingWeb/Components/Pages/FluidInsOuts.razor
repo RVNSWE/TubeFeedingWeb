@@ -53,7 +53,7 @@
                 </label>
                 <ValidationMessage For="@(() => data.Urine)" class="flex-item" />
                 <label class="flex-item">
-                    <strong>Other fluid output (ml) (eg. thoracocentesis, hypersalivation, heavy wound exudate):</strong><br />
+                    <strong>Other fluid output (ml) (eg. bleeding, hypersalivation etc.):</strong><br />
                     <InputNumber @bind-Value=data.OtherOutput min="0" max="100000" />
                 </label>
                 <ValidationMessage For="@(() => data.OtherOutput)" class="flex-item" />
