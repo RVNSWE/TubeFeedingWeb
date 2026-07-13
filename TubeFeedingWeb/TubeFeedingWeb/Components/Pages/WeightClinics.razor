@@ -15,28 +15,28 @@
                 <label class="flex-item">
                     <strong>BCS out of 9:</strong><br />
                     <InputNumber @bind-Value=data.BCS min="6" max="9" />
+                    <ValidationMessage For="@(() => data.BCS)" />
                 </label>
-                <ValidationMessage For="@(() => data.BCS)" class="flex-item" />
                 <label class="flex-item">
                     <strong>Current body weight (kg):</strong><br />
                     <InputNumber @bind-Value="data.CurrentBodyWeight" min="0" max="200" /> kg
+                    <ValidationMessage For="@(() => data.CurrentBodyWeight)" />
                 </label>
-                <ValidationMessage For="@(() => data.CurrentBodyWeight)" class="flex-item" />
                 <label class="flex-item">
                     <strong>Body weight at last weight check (kg):</strong><br />
                     <InputNumber @bind-Value="data.LastBodyWeight" min="0" max="200" /> kg
+                    <ValidationMessage For="@(() => data.LastBodyWeight)" />
                 </label>
-                <ValidationMessage For="@(() => data.LastBodyWeight)" class="flex-item" />
                 <label class="flex-item">
                     <strong>Number of weeks since last weight check:</strong><br />
                     <InputNumber @bind-Value=data.WeeksSinceLastWeighed min="0.1" max="52" />
+                    <ValidationMessage For="@(() => data.WeeksSinceLastWeighed)" />
                 </label>
-                <ValidationMessage For="@(() => data.WeeksSinceLastWeighed)" class="flex-item" />
                 <label class="flex-item">
                     <strong>Number of weeks until next weight check:</strong><br />
                     <InputNumber @bind-Value=data.WeeksUntilNextWeighed min="0.1" max="52" />
+                    <ValidationMessage For="@(() => data.WeeksUntilNextWeighed)" />
                 </label>
-                <ValidationMessage For="@(() => data.WeeksUntilNextWeighed)" class="flex-item" />
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
         </EditForm>
