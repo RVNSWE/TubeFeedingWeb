@@ -27,14 +27,15 @@
                             <label class="radio-option">@item <InputRadio Name="species" Value="@item" /></label>
                         }
                     </InputRadioGroup>
+                    <ValidationMessage For="@(() => data.Species)" />
                 </label>
 
                 <label class="flex-item">
                     <strong>Patient body weight:</strong><br />
                     <InputNumber @bind-Value="data.BodyWeight" min="0" max="200" />
                     kg
+                    <ValidationMessage For="@(() => data.BodyWeight)" />
                 </label>
-                <ValidationMessage For="@(() => data.BodyWeight)" class="flex-item" />
             </div>
 
             <h4>Diet Information</h4>
@@ -47,29 +48,29 @@
                 <label class="flex-item">
                     <strong>Name:</strong><br />
                     <InputText @bind-Value=data.DietName />
+                    <ValidationMessage For="@(() => data.DietName)" />
                 </label>
-                <ValidationMessage For="@(() => data.DietName)" class="flex-item" />
 
                 <label class="flex-item">
                     <strong>Kcal per gram:</strong><br />
                     <InputNumber @bind-Value=data.KcalPerG min="0" max="10" />
                     kcal/g
+                    <ValidationMessage For="@(() => data.KcalPerG)" />
                 </label>
-                <ValidationMessage For="@(() => data.KcalPerG)" class="flex-item" />
 
                 <label class="flex-item">
                     <strong>Net weight per container (g):</strong><br />
                     <InputNumber @bind-Value=data.DietNetWeight min="0" max="1000" />
                     g
+                    <ValidationMessage For="@(() => data.DietNetWeight)" />
                 </label>
-                <ValidationMessage For="@(() => data.DietNetWeight)" class="flex-item" />
 
                 <label class="flex-item">
                     <strong>Moisture content (%):</strong><br />
                     <InputNumber @bind-Value=data.DietWaterPercentage min="0" max="100" />
                     %
+                    <ValidationMessage For="@(() => data.DietWaterPercentage)" />
                 </label>
-                <ValidationMessage For="@(() => data.DietWaterPercentage)" class="flex-item" />
             </div>
 
             <h4>Feeding Information</h4>
@@ -83,8 +84,8 @@
                 <label class="flex-item">
                     <strong>Number of days to re-feed over (enter "1" if starting at full RER):</strong><br />
                     <InputNumber @bind-Value=data.Days min="1" max="10" />
+                    <ValidationMessage For="@(() => data.Days)" />
                 </label>
-                <ValidationMessage For="@(() => data.Days)" class="flex-item" />
 
                 <label class="flex-item">
                     <strong>Mix water into the food or administer separately?:</strong><br />
@@ -94,6 +95,7 @@
                             <label class="radio-option">@item <InputRadio Name="foodDilutedOrSeparate" Value="@item" /></label>
                         }
                     </InputRadioGroup>
+                    <ValidationMessage For="@(() => data.FoodDilutedOrSeparate)" />
                 </label>
             </div>
             <input type="submit" class="btn btn-primary" value="Calculate" disabled=@calculating />
