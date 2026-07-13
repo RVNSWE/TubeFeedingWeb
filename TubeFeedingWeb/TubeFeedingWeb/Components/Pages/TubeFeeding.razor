@@ -11,6 +11,12 @@
 
         <EditForm Model="@data" OnValidSubmit=@ProcessData>
             <h4>Patient Information</h4>
+
+            <p>
+            <strong>This calculator is designed for euvolaemic adult cats and dogs who are either hospitalised or
+            being rested at home. </strong> It bases nutrition on RER and doesn't account for life stage factors.
+            </p>
+
             <div class="tool-container">
                 <DataAnnotationsValidator />
                 <label class="flex-item">
@@ -32,6 +38,11 @@
             </div>
 
             <h4>Diet Information</h4>
+
+            <p>
+                If using a liquid diet, enter the kcal/ml and the volume in ml per container instead.
+            </p>
+
             <div class="tool-container">
                 <label class="flex-item">
                     <strong>Name:</strong><br />
@@ -42,12 +53,14 @@
                 <label class="flex-item">
                     <strong>Kcal per gram:</strong><br />
                     <InputNumber @bind-Value=data.KcalPerG min="0" max="10" />
+                    kcal/g
                 </label>
                 <ValidationMessage For="@(() => data.KcalPerG)" class="flex-item" />
 
                 <label class="flex-item">
-                    <strong>Net weight per container (g or ml):</strong><br />
+                    <strong>Net weight per container (g):</strong><br />
                     <InputNumber @bind-Value=data.DietNetWeight min="0" max="1000" />
+                    g
                 </label>
                 <ValidationMessage For="@(() => data.DietNetWeight)" class="flex-item" />
 
@@ -62,10 +75,8 @@
             <h4>Feeding Information</h4>
 
             <p>
-                If you want to prepare batches of diluted food to make it easier to draw up and administer, choose "Mixed in"
-                and you'll be shown how much water to add per gram of food to meet basic fluid requirements each day. If you
-                want to draw the water up separately from the food (eg. if you're already feeding a liquid diet), choose
-                "Separate."
+                Choose "diluted" if you want to dilute the food with water before drawing it up, or "separate" if you want to
+                administer food and water separately.
             </p>
 
             <div class="tool-container">
@@ -103,20 +114,28 @@
             {
                 <div>
                     <p><strong><u>Day: @meal.Day</u></strong></p>
-                    <p>Food per meal: <strong>@meal.FoodPerMeal g</strong></p>
                     @if (meal.FoodDiluted)
                     {
-                        double tempExample = meal.WaterFoodDilutionRate * 10;
-                        <p>Volume of water (ml) to mix in per gram of food: <strong>@meal.WaterFoodDilutionRate ml</strong> (eg. @tempExample ml of water per 10 g of food)</p>
+                        <p>Volume per meal: <strong>@meal.FoodPerMeal ml</strong></p>
+                        if (meal.WaterFoodDilutionRate > 0)
+                        {
+                            double tempExample = meal.WaterFoodDilutionRate * 10;
+                            <p>Dilution rate: <strong>@meal.WaterFoodDilutionRate ml</strong> (eg. mix in @tempExample ml of water per 10 g of food)</p>
+                        }
                     }
-                    else
+
+                    @if (!meal.FoodDiluted)
                     {
-                        <p>Water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                        <p>Food per meal: <strong>@meal.FoodPerMeal ml</strong></p>
+                        if (meal.WaterPerMeal > 0)
+                        {
+                            <p>Water per meal: <strong>@meal.WaterPerMeal ml</strong></p>
+                        }
                     }
                     <p>Meals per day: <strong>@meal.MealsPerDay</strong></p>
                     <p>Estimated total food used per day: <strong>@meal.ContainersPerDay @FoodContainerText(meal)</strong></p>
                     <p>
-                        Example feeding schedule: || 
+                        Suggested feeding schedule: || 
                         @foreach (string time in meal.FormattedFeedingTimes)
                         {
                             <span id="time"><strong>@time</strong> || </span>
@@ -141,21 +160,28 @@
                 Unless advised otherwise by your clinic, fresh water should remain available at all times and you
                 should leave the calculated volume of food in your pet's normal bowl between feeds to allow the
                 opportunity to eat unassisted. If it has all been eaten by the time of their next scheduled feed, offer
-                a fresh bowl of food instead of tube feeding. Otherwise, draw up any remaining uneaten food into
-                a syringe (or the same volume of fresh food if it's looking dry or stale). This is the volume of food
-                you will need to administer to your pet this session.
+                a fresh bowl of food instead of tube feeding.
             </p>
             <br />
 
             <h4>Preparing the food</h4>
             <p>
-                Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has not
-                been drinking anything, you will also need to mix in additional water as listed in the feeding plan
-                before drawing it up. If your pet has been offered food and eaten some but not all of it, draw the rest of it
-                up into a syringe (or the same amount of fresh food if it's looking dry or stale). If your pet has not eaten
-                anything at all since the last feed, you will need to prepare the full volume of food listed for this
-                meal.
+                Prepare two syringes of tap water to flush the tube with before and after feeding. If your pet has been
+                offered food and eaten some but not all of it, draw the rest of it up into a syringe (or around the same volume
+                of fresh food if it's looking dry or stale). This is all the food you will need to administer for this meal.
+                If your pet has not eaten on their own, prepare the volume listed above.
             </p>
+            @if (data.FoodDilutedOrSeparate == "Diluted")
+            {
+                <p>
+                    If a dilution rate is provided in the instructions above, prepare a portion of food at the dilution rate
+                    specified before drawing up the volume to be administered through the tube.
+                </p>
+            }
+            else
+            {
+                
+            }
             <p>
                 Place the filled syringes into a jug of <strong>warm</strong> (not hot!) water until they reach body temperature.
                 <strong>DO NOT MICROWAVE</strong>, as this can create pockets of hot liquid that may scald your pet.
@@ -174,8 +200,8 @@
                     </li>
                     <li>
                         <p><strong>Slowly</strong> flush the feeding tube with water before administering any food.
-                        <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP immediately
-                    and contact the clinic for advice.</strong></p>
+                        <strong>If your pet starts coughing, gagging, retching, or appearing uncomfortable while flushing, STOP
+                        immediately and contact the clinic for advice.</strong></p>
                     </li>
                     <li>
                         <p>Slowly administer the prepared volume of food through the tube. You may notice your pet

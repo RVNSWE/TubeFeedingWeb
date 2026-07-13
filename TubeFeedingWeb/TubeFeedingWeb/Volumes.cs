@@ -27,7 +27,6 @@
         private double mealHalfTime;
         private double midPoint;
         private double startTime;
-        private double endTime;
         private readonly PatientDietData data;
 
         public Volumes(PatientDietData patientDietData, int day)
@@ -45,7 +44,7 @@
             FoodPerDay = RER / data.KcalPerG; // (g) the total volume of food needed for today
             ContainersPerDay = FoodPerDay / data.DietNetWeight; // how many containers of food will be used up today
             DietWaterVolume = FoodPerDay * (data.DietWaterPercentage / 100); // (ml) the volume of water the food contains
-            AdditionalWaterRequirement = CalculateWaterPerDay() - DietWaterVolume; // (ml) the patient's remaining daily water requirement
+            AdditionalWaterRequirement = CalculateBasicFluidRequirement() - DietWaterVolume; // (ml) the patient's remaining daily water requirement
             TotalVolumePerDay = FoodPerDay + AdditionalWaterRequirement; // (ml) the total volume to administer
             CalculateMealsPerDay(); // work out how many meals to split feeding into
 
@@ -95,7 +94,7 @@
 
             if (totalFlushPerDay > AdditionalWaterRequirement)
             {
-                WaterPerDay = 0; // if the volume of flush per day is more than the patient's additional fluid requirement, don't add any more water
+                WaterPerDay = 0; // don't add any more water if flush already exceeds requirement (constraint: water per day can never be less than 0)
                 TotalVolumePerDay = FoodPerDay + totalFlushPerDay; // (ml) food and flush are all that will be administered
             }
             else
@@ -133,84 +132,96 @@
         /*
          * Calculate the estimated daily fluid requirement based on species and return the result.
          */
-        private double CalculateWaterPerDay()
+        private double CalculateBasicFluidRequirement()
         {
-            double waterPerDay;
+            double basicFluidRequirement;
 
             if (data.Species == "Cat")
             {
-                waterPerDay = 80 * Math.Pow(data.BodyWeight, 0.75);
+                basicFluidRequirement = 80 * Math.Pow(data.BodyWeight, 0.75);
             }
             else
             {
-                waterPerDay = 132 * Math.Pow(data.BodyWeight, 0.75);
+                basicFluidRequirement = 132 * Math.Pow(data.BodyWeight, 0.75);
             }
 
-            return waterPerDay;
+            return basicFluidRequirement;
+        }
+
+        /*
+         * Get the number of hours feeds have actually been spread over.
+         */
+        private double GetScheduleLength()
+        {
+            double scheduleLength = ((double)MealsPerDay - 1.0) * (double)interval; // The actual number of hours the feeds are spread over
+
+            return scheduleLength;
         }
 
         /*
          * Calculate the time interval between feeds.
          */
-        public void CalculateInterval()
+        private void CalculateInterval()
         {
-            int hours = 15; // Number of hours to spread the feeds over
+            double hours = 16; // Number of hours to try to spread the feeds over
 
-            double preciseInterval = (double)hours / (double)MealsPerDay;
+            double preciseInterval = hours / (double)MealsPerDay;
             interval = Math.Round(preciseInterval / 5, 1, MidpointRounding.AwayFromZero) * 5; // Round to the nearest 5 = to the nearest half hour
 
             if (interval < 1) // If interval less than one hour
             {
-                interval = 1; // Set feeding interval to one hour (constraint: interval can never be less than an hour)
+                interval = 1; // Set feeding interval to one hour (constraint: can never be less than an hour)
             }
         }
 
         /*
-         * Calculate the first and last feeding times of the day.
+         * Calculate the first and last feeding times of the day from a fixed midway point, to ensure start and finish times vary within reasonable
+         * waking hours where possible.
          */
         private void CalculateTimeLine()
         {
-            double feedingHours = (double)MealsPerDay * (double)interval; // The actual number of hours the feeds are spread over
-            double preciseMealHalfTime = feedingHours / 2; // Half the total number of hours to adminster feeds over per day
-            mealHalfTime = Math.Round(preciseMealHalfTime / 5, 1, MidpointRounding.AwayFromZero) * 5; // Round to the nearest 5
-            startTime = midPoint - mealHalfTime; // Calculate the feeding schedule start time from its mid point
-            endTime = startTime + feedingHours; // Calculate the end feeding time
+            mealHalfTime = GetScheduleLength() / 2.0; // Half the total number of hours to adminster feeds over per day
+            startTime = Math.Round((midPoint - mealHalfTime) / 5, 1, MidpointRounding.AwayFromZero) * 5; // Calculate the feeding schedule start time from its mid point
         }
 
         /*
          * Calculate the feeding schedule.
          */
-        public List<double> CalculateFeedingPlan()
+        private List<double> CalculateFeedingPlan()
         {
             midPoint = 15; // Corresponding to 16:00 (4pm)
             CalculateInterval();
             CalculateTimeLine();
 
-            while (startTime > 8 && endTime < 22)
+            /*while (GetScheduleLength() < 14)
             {
                 interval += 0.5;
                 CalculateTimeLine();
-            }
+            }*/
 
-            if (endTime > 23) // While current end time is later than 23:30
+            while (startTime + GetScheduleLength() > 23.5) // While current end time is later than 23:30
             {
-                startTime -= 23 - endTime;
-                endTime = 23;
+                if (startTime > 0)
+                {
+                    startTime -= 0.5; // If possible, start feeds 30 minutes earlier (constraint: can't start before midnight)
+                }
+                else
+                {
+                    if (interval > 1) interval -= 0.5; // If possible, reduce the feeding interval (constraint: can never be less than an hour)
+                    CalculateTimeLine();
+                }
+
+                if (interval < 1.5)
+                {
+                    interval = 1;
+                    break;
+                }
             }
 
             double time = startTime; // Start from the calculated start time
 
             List<double> feedingTimes = []; // Initialise the output list
-
-            if (interval > 1) // If the interval is longer than 1 hour
-            {
-                for (int i = 0; i < MealsPerDay; i++) // For each meal to be scheduled
-                {
-                    feedingTimes.Add(time); // Add this time to the list
-                    time += interval; // Increment the time by the calculated interval
-                }
-            }
-            else if (MealsPerDay > 23) // Otherwise, if the patient needs more than 23 meals per day
+            if (MealsPerDay > 23) // Otherwise, if the patient needs more than 23 meals per day
             {
                 time = 0; // Set the time to midnight
                 for (int i = 0; i < 24; i++) // For each meal (which will be every hour)
@@ -224,7 +235,7 @@
                 for (int i = 0; i < MealsPerDay; i++) // For each meal to be scheduled
                 {
                     feedingTimes.Add(time); // Add this time to the list
-                    time++; // Increment the time by one hour
+                    time += interval; // Increment the time by the calculated interval
                 }
             }
 
@@ -234,7 +245,7 @@
         /*
          * Make the calculated times human readable.
          */
-        public static List<string> CreateFormattedListOfTimes(IReadOnlyCollection<double> list)
+        private static List<string> CreateFormattedListOfTimes(IReadOnlyCollection<double> list)
         {
             List<string> formattedList = []; // Initialise output list
 
